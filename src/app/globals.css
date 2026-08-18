@@ -1,0 +1,250 @@
+@import "../styles/tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Sentient";
+  src: url("/fonts/Sentient_Complete/Sentient_Complete/Fonts/WEB/fonts/Sentient-Variable.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sentient";
+  src: url("/fonts/Sentient_Complete/Sentient_Complete/Fonts/WEB/fonts/Sentient-VariableItalic.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Telma";
+  src: url("/fonts/Telma_Complete/Telma_Complete/Fonts/WEB/fonts/Telma-Variable.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zodiak";
+  src: url("/fonts/Zodiak_Complete/Zodiak_Complete/Fonts/WEB/fonts/Zodiak-Variable.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Zodiak";
+  src: url("/fonts/Zodiak_Complete/Zodiak_Complete/Fonts/WEB/fonts/Zodiak-VariableItalic.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@layer base {
+  .font-sentient {
+    font-family: var(--font-sentient), serif;
+  }
+
+  .font-telma {
+    font-family: var(--font-telma), serif;
+  }
+
+  .font-zodiak {
+    font-family: var(--font-zodiak), serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--surface);
+  }
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    max-width: 100%;
+  }
+
+  body {
+    position: relative;
+    font-family: var(--font-zodiak), serif;
+    background:
+      radial-gradient(circle at top, rgba(139, 26, 26, 0.08), transparent 35%),
+      linear-gradient(
+        180deg,
+        var(--surface-bright) 0%,
+        var(--surface) 36%,
+        var(--surface) 100%
+      );
+    color: var(--on-surface);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img,
+  video,
+  svg,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+.hero-spotlight {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(139, 26, 26, 0.12) 0%,
+    rgba(139, 26, 26, 0.075) 28%,
+    rgba(139, 26, 26, 0.025) 55%,
+    transparent 74%
+  );
+  filter: blur(70px);
+  will-change: transform;
+}
+
+.hero-noise {
+  background-image: url("/textures/noise.png");
+  background-repeat: repeat;
+  background-size: 180px;
+}
+
+::selection {
+  background: var(--primary-fixed);
+  color: var(--primary);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline-variant) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--outline-variant);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--outline);
+}
+
+@keyframes scrollDot {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+
+.card-light {
+  opacity: 0;
+
+  transition: opacity 0.45s ease;
+
+  background: radial-gradient(
+    280px circle at var(--mx) var(--my),
+    rgba(139, 26, 26, 0.24),
+    transparent 45%
+  );
+}
+.group:hover .card-light {
+  opacity: 1;
+}
+.card-border {
+  border-radius: inherit;
+
+  padding: 1px;
+
+  background: radial-gradient(
+    220px circle at var(--mx) var(--my),
+    rgba(139, 26, 26, 0.95),
+    rgba(139, 26, 26, 0.18),
+    transparent 60%
+  );
+
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+
+  mask-composite: exclude;
+
+  -webkit-mask-composite: xor;
+
+  opacity: 0;
+
+  transition: 0.45s;
+}
+.group:hover .card-border {
+  opacity: 1;
+}

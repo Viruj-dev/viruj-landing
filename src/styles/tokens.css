@@ -1,0 +1,37 @@
+:root {
+  --font-sans: "Zodiak";
+  --font-sentient: "Sentient";
+  --font-telma: "Telma";
+  --font-zodiak: "Zodiak";
+
+  --surface: #f8f9fa;
+  --surface-bright: #ffffff;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f3f4f5;
+  --surface-container: #edeeef;
+  --surface-container-high: #e7e8e9;
+  --surface-container-highest: #e1e3e4;
+  --on-surface: #191c1d;
+  --on-surface-variant: #58413f;
+  --inverse-surface: #2e3132;
+  --inverse-on-surface: #f0f1f2;
+  --outline: #8c716e;
+  --outline-variant: #e0bfbc;
+  --primary: #8b1a1a;
+  --on-primary: #ffffff;
+  --primary-container: #a32727;
+  --on-primary-container: #ffddd9;
+  --primary-fixed: #ffdad6;
+  --primary-fixed-dim: #ffb3ac;
+  --secondary: #2c3e50;
+  --on-secondary: #ffffff;
+  --secondary-container: #d1e4fb;
+  --on-secondary-container: #36485b;
+  --tertiary: #6e4c4d;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #f1dede;
+  --on-tertiary-container: #504444;
+  --success: #1a7f5a;
+  --warning: #a15c00;
+  --info: #1d4f91;
+}
