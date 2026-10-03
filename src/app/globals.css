@@ -395,13 +395,6 @@ p {
 }
 .hero-screen .phone {
   width: 220px;
-  animation: phone-float 6.4s ease-in-out infinite;
-}
-.hero-screen:first-child .phone {
-  animation-delay: -1.6s;
-}
-.hero-screen:last-child .phone {
-  animation-delay: -3.2s;
 }
 .hero-screen-main .phone {
   width: 246px;
@@ -1096,15 +1089,6 @@ summary::-webkit-details-marker {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-@keyframes phone-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
   }
 }
 @keyframes faq-open {
