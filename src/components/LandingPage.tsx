@@ -1,8 +1,15 @@
 "use client";
 
-import { useRef, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -13,38 +20,41 @@ import {
   ClipboardList,
   Copy,
   Hospital,
-  LockKeyhole,
   Mail,
   Menu,
-  MessageCircle,
   Search,
-  ShieldCheck,
   Smartphone,
   Sparkles,
-  Users,
   X,
 } from "lucide-react";
 import { destinations } from "@/data/destinations";
 import { contactDraft } from "@/lib/contact-draft";
 
-const features = [
+type Feature = {
+  name: string;
+  icon: typeof Search;
+  title: string;
+  text: string;
+  image: string;
+  alt: string;
+};
+
+const features: Feature[] = [
   {
     name: "Find care",
     icon: Search,
     title: "Find the right place to start.",
-    text: "Browse doctors, hospitals, clinics, and labs. See a doctor’s specialty, practice, and fee before you book.",
+    text: "Browse doctors, hospitals, clinics, and labs. See specialty, practice, and fee before you book.",
     image: "doctors",
     alt: "Viruj mobile app showing nearby doctors",
-    detail: "Care options depend on your location.",
   },
   {
     name: "Book a visit",
     icon: CalendarDays,
     title: "Book without the back-and-forth.",
-    text: "Choose a doctor and practice. Add your details and request a time. Your care team reviews the request.",
+    text: "Choose a doctor and practice, add your details, and request a time. Your care team reviews the request.",
     image: "booking",
     alt: "Viruj mobile app appointment request form",
-    detail: "Your visit is confirmed after the provider approves it.",
   },
   {
     name: "My Health",
@@ -53,54 +63,62 @@ const features = [
     text: "See current and past appointments, check their status, and book again from your history.",
     image: "health",
     alt: "Viruj mobile app showing current and past appointments",
-    detail: "A requested visit stays marked as pending until approved.",
   },
   {
     name: "Ask AI",
     icon: Sparkles,
     title: "Make sense of health questions.",
-    text: "Ask a question in your own words. Viruj AI helps explain health topics and prepare questions for your doctor.",
+    text: "Ask in your own words. Viruj AI helps explain topics and prepare questions for your doctor.",
     image: "ai",
     alt: "Viruj mobile AI assistant with example health questions",
-    detail: "AI can make mistakes. A doctor makes medical decisions.",
-  },
-  {
-    name: "Community",
-    icon: Users,
-    title: "You don’t have to figure it out alone.",
-    text: "Read health awareness posts, share experiences, and connect with others in the Viruj community.",
-    image: "community",
-    alt: "Viruj mobile community feed",
-    detail: "Community posts are personal experiences, not medical advice.",
   },
 ];
 
-const faqs = [
+const faqs: Array<[string, string]> = [
   [
     "What is Viruj?",
-    "Viruj connects a patient app with a workspace for care teams. Patients can find care and request visits. Providers manage those requests and their daily work.",
+    "Viruj connects a patient app with a workspace for care teams. Patients find care and request visits. Providers manage those requests and their daily work.",
   ],
   [
     "How do I get the app?",
-    "Request app access below. Our team will share the current access options. We’ll add store download links when they are available.",
+    "Request app access below. Our team will share the current access options, and we’ll add store links when they are available.",
   ],
   [
     "Is my appointment confirmed as soon as I book?",
-    "No. You send a request first. The provider reviews it, and you can check the status in My Health. Wait for approval before your visit.",
+    "No. You send a request first. The provider reviews it, and you can check the status in My Health.",
   ],
   [
     "Can AI replace my doctor?",
     "No. Viruj AI offers general health information. It can be wrong and does not diagnose, prescribe, or replace a doctor. For urgent care, contact local emergency services.",
   ],
-  [
-    "Can my organization use Viruj?",
-    "Doctors, clinics, hospitals, and labs can ask for a demo. We’ll show the workflows relevant to your team and discuss setup, pricing, and what is available.",
-  ],
-  [
-    "Will all my old records appear automatically?",
-    "No. Do not assume that records from other hospitals or apps are already connected. Ask our team which record workflows are available for your organization.",
-  ],
 ];
+
+const easeOut = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Fades and lifts content into view as it enters the viewport.
+ */
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18, margin: "0px 0px -40px 0px" }}
+      transition={{ duration: 0.9, delay, ease: easeOut }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function Action({
   href,
@@ -155,7 +173,8 @@ function Brand() {
     <Link href="/" className="brand" aria-label="Viruj Health home">
       <Image src="/brand/logo.png" alt="" width={34} height={34} />
       <span>
-        viruj<span className="brand-dot">.</span><span className="brand-health"> health</span>
+        viruj<span className="brand-dot">.</span>
+        <span className="brand-health"> health</span>
       </span>
     </Link>
   );
@@ -172,6 +191,9 @@ export default function LandingPage() {
   const [copyStatus, setCopyStatus] = useState("");
   const feature = features[activeFeature];
 
+  /**
+   * Builds a mailto draft from the contact form without sending data to a server.
+   */
   function prepareEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
@@ -184,8 +206,14 @@ export default function LandingPage() {
     setCopyStatus("");
   }
 
+  /**
+   * Copies the prepared email draft to the clipboard when available.
+   */
   async function copyDraft() {
-    if (!draft) return;
+    if (!draft) {
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(draft.text);
       setCopyStatus("Copied. Paste it into an email to help@virujhealth.com.");
@@ -194,28 +222,77 @@ export default function LandingPage() {
     }
   }
 
+  /**
+   * Moves feature selection with keyboard arrows, Home, and End.
+   */
+  function handleFeatureKey(
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) {
+    const next =
+      event.key === "ArrowDown" || event.key === "ArrowRight"
+        ? (index + 1) % features.length
+        : event.key === "ArrowUp" || event.key === "ArrowLeft"
+          ? (index + features.length - 1) % features.length
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? features.length - 1
+              : null;
+
+    if (next === null) {
+      return;
+    }
+
+    event.preventDefault();
+    setActiveFeature(next);
+    document.getElementById(`feature-tab-${next}`)?.focus();
+  }
+
   return (
     <>
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <header className="site-header" onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          setMenuOpen(false);
-          document.getElementById("navigation-toggle")?.focus();
-        }
-      }}>
+      <header
+        className="site-header"
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            setMenuOpen(false);
+            document.getElementById("navigation-toggle")?.focus();
+          }
+        }}
+      >
         <div className="wrap header-inner">
           <Brand />
           <nav className="desktop-nav" aria-label="Main navigation">
-            <a href="#patients"><Smartphone size={15} aria-hidden="true" />For you</a>
-            <a href="#organizations"><Hospital size={15} aria-hidden="true" />For care teams</a>
-            <a href="#how-it-works"><CalendarDays size={15} aria-hidden="true" />How it works</a>
-            <a href="#trust"><ShieldCheck size={15} aria-hidden="true" />Trust & help</a>
+            <a href="#patients">
+              <Smartphone size={15} aria-hidden="true" />
+              For you
+            </a>
+            <a href="#organizations">
+              <Hospital size={15} aria-hidden="true" />
+              For care teams
+            </a>
+            <a href="#how-it-works">
+              <CalendarDays size={15} aria-hidden="true" />
+              How it works
+            </a>
+            <a href="#faq">
+              <Sparkles size={15} aria-hidden="true" />
+              Questions
+            </a>
           </nav>
           <div className="header-actions">
-
-            <button className="action action-primary" type="button" aria-haspopup="dialog" onClick={() => { setMenuOpen(false); startDialog.current?.showModal(); }}>
+            <button
+              className="action action-primary"
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => {
+                setMenuOpen(false);
+                startDialog.current?.showModal();
+              }}
+            >
               Get started <ArrowUpRight size={17} aria-hidden="true" />
             </button>
             <button
@@ -230,46 +307,87 @@ export default function LandingPage() {
             </button>
           </div>
         </div>
-        {menuOpen && (
-          <nav
-            className="mobile-nav wrap"
-            id="mobile-menu"
-            aria-label="Mobile navigation"
-          >
-            {[
-              ["For you", "#patients"],
-              ["For care teams", "#organizations"],
-              ["How it works", "#how-it-works"],
-              ["Trust & help", "#trust"],
-              ["Provider login", destinations.provider],
-            ].map(([text, href]) => (
-              <a key={href} href={href} onClick={() => setMenuOpen(false)}>
-                {text}
-                <ArrowUpRight size={16} aria-hidden="true" />
-              </a>
-            ))}
-          </nav>
-        )}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.nav
+              className="mobile-nav wrap"
+              id="mobile-menu"
+              aria-label="Mobile navigation"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35, ease: easeOut }}
+            >
+              {[
+                ["For you", "#patients"],
+                ["For care teams", "#organizations"],
+                ["How it works", "#how-it-works"],
+                ["Questions", "#faq"],
+                ["Provider login", destinations.provider],
+              ].map(([text, href]) => (
+                <a key={href} href={href} onClick={() => setMenuOpen(false)}>
+                  {text}
+                  <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+              ))}
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </header>
 
-      <dialog ref={startDialog} className="start-dialog" aria-labelledby="start-dialog-title" onClick={(event) => { if (event.target === event.currentTarget) startDialog.current?.close(); }}>
+      <dialog
+        ref={startDialog}
+        className="start-dialog"
+        aria-labelledby="start-dialog-title"
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            startDialog.current?.close();
+          }
+        }}
+      >
         <div className="start-dialog-panel">
-          <button type="button" className="dialog-close" aria-label="Close get started" onClick={() => startDialog.current?.close()}><X size={20} /></button>
+          <button
+            type="button"
+            className="dialog-close"
+            aria-label="Close get started"
+            onClick={() => startDialog.current?.close()}
+          >
+            <X size={20} />
+          </button>
           <p className="eyebrow">GET STARTED WITH VIRUJ</p>
           <h2 id="start-dialog-title">Which one are you?</h2>
           <p>Choose where you’d like to go.</p>
           <div className="start-dialog-choices">
-            {destinations.playStore ? <a href={destinations.playStore} className="start-dialog-choice">
-              <span className="choice-icon"><Smartphone size={24} /></span>
-              <span><strong>I’m a user</strong><small>Get the app on Google Play</small></span>
-              <ArrowUpRight size={20} aria-hidden="true" />
-            </a> : <button type="button" className="start-dialog-choice" disabled>
-              <span className="choice-icon"><Smartphone size={24} /></span>
-              <span><strong>I’m a user</strong><small>Play Store link coming soon</small></span>
-            </button>}
+            {destinations.playStore ? (
+              <a href={destinations.playStore} className="start-dialog-choice">
+                <span className="choice-icon">
+                  <Smartphone size={24} />
+                </span>
+                <span>
+                  <strong>I’m a user</strong>
+                  <small>Get the app on Google Play</small>
+                </span>
+                <ArrowUpRight size={20} aria-hidden="true" />
+              </a>
+            ) : (
+              <button type="button" className="start-dialog-choice" disabled>
+                <span className="choice-icon">
+                  <Smartphone size={24} />
+                </span>
+                <span>
+                  <strong>I’m a user</strong>
+                  <small>Play Store link coming soon</small>
+                </span>
+              </button>
+            )}
             <a href={destinations.provider} className="start-dialog-choice">
-              <span className="choice-icon"><Hospital size={24} /></span>
-              <span><strong>I’m a healthcare provider</strong><small>Open the provider workspace</small></span>
+              <span className="choice-icon">
+                <Hospital size={24} />
+              </span>
+              <span>
+                <strong>I’m a healthcare provider</strong>
+                <small>Open the provider workspace</small>
+              </span>
               <ArrowUpRight size={20} aria-hidden="true" />
             </a>
           </div>
@@ -278,7 +396,12 @@ export default function LandingPage() {
 
       <main id="main">
         <section className="hero wrap" aria-labelledby="hero-title">
-          <div className="hero-copy">
+          <motion.div
+            className="hero-copy"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: easeOut }}
+          >
             <p className="eyebrow">
               <span className="small-dot" />
               ONE APP. ONE CONNECTED CARE JOURNEY.
@@ -298,79 +421,41 @@ export default function LandingPage() {
                 For organizations
               </Action>
             </div>
-          </div>
+          </motion.div>
           <div className="hero-visual">
-            <div className="hero-screen">
-              <span>01 / FIND CARE</span>
-              <Phone
-                screen="home"
-                alt="Viruj mobile home screen with specialties and care search"
-                priority
-              />
-            </div>
-            <div className="hero-screen hero-screen-main">
-              <span>02 / FOLLOW YOUR VISIT</span>
-              <Phone
-                screen="health"
-                alt="Viruj mobile app showing appointment status and history"
-                priority
-              />
-            </div>
-            <div className="hero-screen">
-              <span>03 / ASK A QUESTION</span>
-              <Phone
-                screen="ai"
-                alt="Viruj mobile AI assistant showing example health questions"
-                priority
-              />
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="section wrap problem"
-          id="why-viruj"
-          aria-labelledby="problem-title"
-        >
-          <div className="section-heading">
-            <p className="eyebrow">WHY VIRUJ</p>
-            <h2 id="problem-title">
-              Care has enough steps.
-              <br />
-              <em>Let’s connect them.</em>
-            </h2>
-            <p>
-              Searching in one place. Booking in another. Chasing an update on
-              the phone. That’s the gap we’re closing.
-            </p>
-          </div>
-          <div className="difference-grid">
             {[
               {
-                icon: Search,
-                before: "Where do I go?",
-                title: "Find care in one place.",
-                text: "Explore doctors and care providers by specialty and location.",
+                label: "01 / FIND CARE",
+                screen: "home",
+                alt: "Viruj mobile home screen with specialties and care search",
+                className: "",
+                delay: 0.2,
               },
               {
-                icon: CalendarDays,
-                before: "Did my booking go through?",
-                title: "See what happens next.",
-                text: "Follow your request from pending to approved in My Health.",
+                label: "02 / FOLLOW YOUR VISIT",
+                screen: "health",
+                alt: "Viruj mobile app showing appointment status and history",
+                className: "hero-screen-main",
+                delay: 0.35,
               },
               {
-                icon: Users,
-                before: "Who’s handling this visit?",
-                title: "Connect with the care team.",
-                text: "Your request reaches the practice you chose. Staff can review and respond.",
+                label: "03 / ASK A QUESTION",
+                screen: "ai",
+                alt: "Viruj mobile AI assistant showing example health questions",
+                className: "",
+                delay: 0.5,
               },
-            ].map(({ icon: Icon, before, title, text }) => (
-              <article className="difference-card" key={title}>
-                <Icon size={23} aria-hidden="true" />
-                <p className="before">“{before}”</p>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
+            ].map((item) => (
+              <motion.div
+                key={item.label}
+                className={`hero-screen ${item.className}`}
+                initial={{ opacity: 0, y: 48 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.1, delay: item.delay, ease: easeOut }}
+              >
+                <span>{item.label}</span>
+                <Phone screen={item.screen} alt={item.alt} priority />
+              </motion.div>
             ))}
           </div>
         </section>
@@ -381,7 +466,7 @@ export default function LandingPage() {
           aria-labelledby="patient-title"
         >
           <div className="wrap section">
-            <div className="section-heading heading-row">
+            <Reveal className="section-heading heading-row">
               <div>
                 <p className="eyebrow">FOR YOU & YOUR FAMILY</p>
                 <h2 id="patient-title">
@@ -395,8 +480,8 @@ export default function LandingPage() {
                 <br className="desktop-break" /> following visits, and asking
                 questions.
               </p>
-            </div>
-            <div className="patient-showcase">
+            </Reveal>
+            <Reveal className="patient-showcase" delay={0.08}>
               <div
                 className="feature-picker"
                 role="tablist"
@@ -411,23 +496,7 @@ export default function LandingPage() {
                     aria-controls="feature-panel"
                     tabIndex={activeFeature === index ? 0 : -1}
                     onClick={() => setActiveFeature(index)}
-                    onKeyDown={(event) => {
-                      const next =
-                        event.key === "ArrowDown" || event.key === "ArrowRight"
-                          ? (index + 1) % features.length
-                          : event.key === "ArrowUp" || event.key === "ArrowLeft"
-                            ? (index + features.length - 1) % features.length
-                            : event.key === "Home"
-                              ? 0
-                              : event.key === "End"
-                                ? features.length - 1
-                                : null;
-                      if (next !== null) {
-                        event.preventDefault();
-                        setActiveFeature(next);
-                        document.getElementById(`feature-tab-${next}`)?.focus();
-                      }
-                    }}
+                    onKeyDown={(event) => handleFeatureKey(event, index)}
                   >
                     <Icon size={19} aria-hidden="true" />
                     <span>{name}</span>
@@ -442,32 +511,40 @@ export default function LandingPage() {
                 aria-labelledby={`feature-tab-${activeFeature}`}
                 tabIndex={0}
               >
-                <div className="feature-copy" key={feature.name}>
-                  <span className="feature-number">
-                    0{activeFeature + 1} / 05
-                  </span>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.text}</p>
-                  <p className="feature-detail">
-                    <ShieldCheck size={17} aria-hidden="true" />
-                    {feature.detail}
-                  </p>
-                  <Action href={destinations.appAccess}>
-                    Request app access
-                  </Action>
-                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    className="feature-copy"
+                    key={feature.name}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.45, ease: easeOut }}
+                  >
+                    <span className="feature-number">
+                      0{activeFeature + 1} / 0{features.length}
+                    </span>
+                    <h3>{feature.title}</h3>
+                    <p>{feature.text}</p>
+                    <Action href={destinations.appAccess}>
+                      Request app access
+                    </Action>
+                  </motion.div>
+                </AnimatePresence>
                 <div className="feature-image">
-                  <Phone
-                    screen={feature.image}
-                    alt={feature.alt}
-                    key={feature.image}
-                  />
-                  <p className="screenshot-note">
-                    Actual mobile app · sample data
-                  </p>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={feature.image}
+                      initial={{ opacity: 0, scale: 0.96, y: 18 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.98, y: -10 }}
+                      transition={{ duration: 0.5, ease: easeOut }}
+                    >
+                      <Phone screen={feature.image} alt={feature.alt} />
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
-            </div>
+            </Reveal>
           </div>
         </section>
 
@@ -476,14 +553,14 @@ export default function LandingPage() {
           id="how-it-works"
           aria-labelledby="how-title"
         >
-          <div className="section-heading">
+          <Reveal className="section-heading">
             <p className="eyebrow">HOW A VISIT WORKS</p>
             <h2 id="how-title">
               From finding care
               <br />
               <em>to showing up.</em>
             </h2>
-          </div>
+          </Reveal>
           <ol className="steps">
             {[
               [
@@ -503,20 +580,19 @@ export default function LandingPage() {
                 "After approval, follow your practice’s check-in instructions.",
               ],
             ].map(([title, text], index) => (
-              <li key={title}>
+              <motion.li
+                key={title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.8, delay: index * 0.08, ease: easeOut }}
+              >
                 <span className="step-number">0{index + 1}</span>
                 <h3>{title}</h3>
                 <p>{text}</p>
-              </li>
+              </motion.li>
             ))}
           </ol>
-          <div className="visit-note">
-            <CheckCheck size={18} aria-hidden="true" />
-            <p>
-              The same request connects the patient app and the provider’s
-              appointment queue.
-            </p>
-          </div>
         </section>
 
         <section
@@ -525,7 +601,7 @@ export default function LandingPage() {
           aria-labelledby="org-title"
         >
           <div className="wrap section org-grid">
-            <div className="org-copy">
+            <Reveal className="org-copy">
               <p className="eyebrow">FOR DOCTORS & ORGANIZATIONS</p>
               <h2 id="org-title">
                 Less chasing.
@@ -549,10 +625,6 @@ export default function LandingPage() {
                   <Check />
                   Give staff access based on their role.
                 </li>
-                <li>
-                  <Check />
-                  Keep work within the right organization.
-                </li>
               </ul>
               <div className="actions">
                 <Action href={destinations.demo}>Ask for a demo</Action>
@@ -560,114 +632,50 @@ export default function LandingPage() {
                   Open provider portal <ArrowUpRight size={16} />
                 </a>
               </div>
-              <p className="org-note">
-                Doctors · Clinics · Hospitals · Labs
-                <br />
-                We’ll walk through the tools available for your team.
-              </p>
-            </div>
-            <div className="workflow-board">
-              <div className="board-header">
-                <span className="board-mark">
-                  <Hospital size={21} />
-                </span>
-                <div>
-                  <strong>One visit. Both sides connected.</strong>
-                  <span>Patient app ↔ Care team workspace</span>
-                </div>
-              </div>
-              <div className="workflow-lane">
-                <span className="lane-label">PATIENT</span>
-                <div className="workflow-item">
-                  <Smartphone />
+            </Reveal>
+            <Reveal delay={0.12}>
+              <div className="workflow-board">
+                <div className="board-header">
+                  <span className="board-mark">
+                    <Hospital size={21} />
+                  </span>
                   <div>
-                    <strong>Request a visit</strong>
-                    <span>Doctor, practice, patient details, time</span>
+                    <strong>One visit. Both sides connected.</strong>
+                    <span>Patient app ↔ Care team workspace</span>
+                  </div>
+                </div>
+                <div className="workflow-lane">
+                  <span className="lane-label">PATIENT</span>
+                  <div className="workflow-item">
+                    <Smartphone />
+                    <div>
+                      <strong>Request a visit</strong>
+                      <span>Doctor, practice, patient details, time</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="workflow-connector" aria-hidden="true">
+                  <ArrowRight />
+                </div>
+                <div className="workflow-lane">
+                  <span className="lane-label">CARE TEAM</span>
+                  <div className="workflow-item">
+                    <CalendarDays />
+                    <div>
+                      <strong>Review the request</strong>
+                      <span>Approve, reschedule, or decline</span>
+                    </div>
+                  </div>
+                  <div className="workflow-item">
+                    <CheckCheck />
+                    <div>
+                      <strong>Check in the patient</strong>
+                      <span>Verify arrival for an approved visit</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="workflow-connector" aria-hidden="true">
-                <ArrowRight />
-              </div>
-              <div className="workflow-lane">
-                <span className="lane-label">CARE TEAM</span>
-                <div className="workflow-item">
-                  <CalendarDays />
-                  <div>
-                    <strong>Review the request</strong>
-                    <span>Approve, reschedule, or decline</span>
-                  </div>
-                </div>
-                <div className="workflow-item">
-                  <CheckCheck />
-                  <div>
-                    <strong>Check in the patient</strong>
-                    <span>Verify arrival for an approved visit</span>
-                  </div>
-                </div>
-              </div>
-              <div className="board-footer">
-                <ShieldCheck size={16} />
-                <span>Staff actions follow organization permissions.</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="section wrap trust-section"
-          id="trust"
-          aria-labelledby="trust-title"
-        >
-          <div className="section-heading heading-row">
-            <div>
-              <p className="eyebrow">CLEAR FROM THE START</p>
-              <h2 id="trust-title">
-                Your health deserves
-                <br />
-                <em>straight answers.</em>
-              </h2>
-            </div>
-            <p>
-              Know how access works.
-              <br />
-              Know where AI stops.
-            </p>
-          </div>
-          <div className="trust-grid">
-            <article>
-              <LockKeyhole size={24} />
-              <h3>Access has boundaries.</h3>
-              <p>
-                Provider workspaces use staff roles and organization
-                permissions. Ask us how access works for your team.
-              </p>
-              <a href={destinations.demo} className="text-link">
-                Ask about data access <ArrowUpRight size={15} />
-              </a>
-            </article>
-            <article>
-              <Sparkles size={24} />
-              <h3>AI helps. Doctors decide.</h3>
-              <p>
-                AI answers are general information. Confirm medical decisions
-                with a qualified doctor.
-              </p>
-              <a href="#faq" className="text-link">
-                Read the answers <ArrowRight size={15} />
-              </a>
-            </article>
-            <article>
-              <MessageCircle size={24} />
-              <h3>A real way to reach us.</h3>
-              <p>
-                Have a question about access, your data, or setup? Contact the
-                Viruj team directly.
-              </p>
-              <a href={`mailto:${destinations.email}`} className="text-link">
-                {destinations.email} <ArrowUpRight size={15} />
-              </a>
-            </article>
+            </Reveal>
           </div>
         </section>
 
@@ -676,15 +684,15 @@ export default function LandingPage() {
           id="faq"
           aria-labelledby="faq-title"
         >
-          <div>
+          <Reveal>
             <p className="eyebrow">A FEW THINGS TO KNOW</p>
             <h2 id="faq-title">
               Good questions.
               <br />
               <em>Simple answers.</em>
             </h2>
-          </div>
-          <div className="faq-list">
+          </Reveal>
+          <Reveal delay={0.08} className="faq-list">
             {faqs.map(([question, answer]) => (
               <details key={question}>
                 <summary>
@@ -694,40 +702,7 @@ export default function LandingPage() {
                 <p>{answer}</p>
               </details>
             ))}
-          </div>
-        </section>
-
-        <section
-          className="section wrap"
-          id="get-started"
-          aria-labelledby="start-title"
-        >
-          <div className="start-card">
-            <div>
-              <p className="eyebrow">LET’S GET YOU CONNECTED</p>
-              <h2 id="start-title">
-                A simpler next step
-                <br />
-                <em>starts here.</em>
-              </h2>
-            </div>
-            <div className="start-options">
-              <div>
-                <span>FOR PATIENTS</span>
-                <Action href={destinations.appAccess}>
-                  Request app access
-                </Action>
-                <p>We’ll share the current access options.</p>
-              </div>
-              <div>
-                <span>FOR CARE TEAMS</span>
-                <Action href={destinations.demo} secondary>
-                  Ask for a demo
-                </Action>
-                <p>See how Viruj fits your practice.</p>
-              </div>
-            </div>
-          </div>
+          </Reveal>
         </section>
 
         <section
@@ -735,7 +710,7 @@ export default function LandingPage() {
           id="contact"
           aria-labelledby="contact-title"
         >
-          <div>
+          <Reveal>
             <p className="eyebrow">TALK TO US</p>
             <h2 id="contact-title">
               Let’s make it
@@ -754,97 +729,96 @@ export default function LandingPage() {
             <a href={`tel:${destinations.phone}`} className="text-link">
               +91 79829 58828 <ArrowUpRight size={15} />
             </a>
-          </div>
-          <form onSubmit={prepareEmail} className="contact-form">
-            <fieldset>
-              <legend>I’m interested in</legend>
-              <div className="contact-choices">
-                {["App access", "Provider demo", "A question"].map((kind) => (
-                  <label key={kind}>
-                    <input
-                      type="radio"
-                      name="interest"
-                      value={kind}
-                      checked={contactKind === kind}
-                      onChange={() => {
-                        setContactKind(kind);
-                        setDraft(null);
-                      }}
-                    />
-                    <span>{kind}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-            <div className="form-row">
-              <label>
-                Your name
-                <input
-                  name="name"
-                  autoComplete="name"
-                  placeholder="Full name"
-                  required
-                  maxLength={100}
-                  onChange={() => setDraft(null)}
-                />
-              </label>
-              <label>
-                Your email
-                <input
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  required
-                  maxLength={254}
-                  onChange={() => setDraft(null)}
-                />
-              </label>
-            </div>
-            <label>
-              How can we help?
-              <textarea
-                name="message"
-                rows={3}
-                placeholder="Tell us a little about what you need."
-                required
-                maxLength={1500}
-                onChange={() => setDraft(null)}
-              />
-            </label>
-            <p className="form-note">
-              Please leave out medical records and private health details.
-            </p>
-            <button type="submit" className="action action-primary">
-              Prepare email <ArrowRight size={17} />
-            </button>
-            <p className="form-note">
-              This creates a draft. You review and send it in your email app.
-            </p>
-            {draft && (
-              <div className="email-draft" aria-live="polite">
-                <strong>Your draft is ready.</strong>
-                <div className="actions">
-                  <Action href={draft.href}>Open email draft</Action>
-                  <button
-                    type="button"
-                    onClick={() => void copyDraft()}
-                    className="copy-button"
-                  >
-                    <Copy size={16} />
-                    Copy message
-                  </button>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <form onSubmit={prepareEmail} className="contact-form">
+              <fieldset>
+                <legend>I’m interested in</legend>
+                <div className="contact-choices">
+                  {["App access", "Provider demo", "A question"].map((kind) => (
+                    <label key={kind}>
+                      <input
+                        type="radio"
+                        name="interest"
+                        value={kind}
+                        checked={contactKind === kind}
+                        onChange={() => {
+                          setContactKind(kind);
+                          setDraft(null);
+                        }}
+                      />
+                      <span>{kind}</span>
+                    </label>
+                  ))}
                 </div>
-                <details>
-                  <summary>
-                    View message <ChevronDown size={16} />
-                  </summary>
-                  <pre>{draft.text}</pre>
-                </details>
-                <p role="status">{copyStatus}</p>
+              </fieldset>
+              <div className="form-row">
+                <label>
+                  Your name
+                  <input
+                    name="name"
+                    autoComplete="name"
+                    placeholder="Full name"
+                    required
+                    maxLength={100}
+                    onChange={() => setDraft(null)}
+                  />
+                </label>
+                <label>
+                  Your email
+                  <input
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    required
+                    maxLength={254}
+                    onChange={() => setDraft(null)}
+                  />
+                </label>
               </div>
-            )}
-          </form>
+              <label>
+                How can we help?
+                <textarea
+                  name="message"
+                  rows={3}
+                  placeholder="Tell us a little about what you need."
+                  required
+                  maxLength={1500}
+                  onChange={() => setDraft(null)}
+                />
+              </label>
+              <p className="form-note">
+                Please leave out medical records and private health details.
+              </p>
+              <button type="submit" className="action action-primary">
+                Prepare email <ArrowRight size={17} />
+              </button>
+              {draft && (
+                <div className="email-draft" aria-live="polite">
+                  <strong>Your draft is ready.</strong>
+                  <div className="actions">
+                    <Action href={draft.href}>Open email draft</Action>
+                    <button
+                      type="button"
+                      onClick={() => void copyDraft()}
+                      className="copy-button"
+                    >
+                      <Copy size={16} />
+                      Copy message
+                    </button>
+                  </div>
+                  <details>
+                    <summary>
+                      View message <ChevronDown size={16} />
+                    </summary>
+                    <pre>{draft.text}</pre>
+                  </details>
+                  <p role="status">{copyStatus}</p>
+                </div>
+              )}
+            </form>
+          </Reveal>
         </section>
       </main>
 

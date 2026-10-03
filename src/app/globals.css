@@ -17,8 +17,12 @@
   box-sizing: border-box;
 }
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 100px;
+  scroll-behavior: auto;
+  scroll-padding-top: 110px;
+}
+html.lenis,
+html.lenis body {
+  height: auto;
 }
 body {
   margin: 0;
@@ -146,16 +150,20 @@ p {
   gap: 24px;
   padding: 13px 22px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: 12px;
   font-size: 13px;
   font-weight: 550;
   transition:
-    background 0.2s,
-    box-shadow 0.2s,
-    transform 0.2s;
+    background 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .action svg {
-  transition: transform 0.2s;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.action:hover {
+  transform: translateY(-2px);
 }
 .action:hover svg {
   transform: translate(2px, -2px);
@@ -387,6 +395,13 @@ p {
 }
 .hero-screen .phone {
   width: 220px;
+  animation: phone-float 6.4s ease-in-out infinite;
+}
+.hero-screen:first-child .phone {
+  animation-delay: -1.6s;
+}
+.hero-screen:last-child .phone {
+  animation-delay: -3.2s;
 }
 .hero-screen-main .phone {
   width: 246px;
@@ -467,9 +482,10 @@ p {
   font-size: 12px;
   color: #70737b;
   transition:
-    background 0.2s,
-    color 0.2s,
-    box-shadow 0.2s;
+    background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .feature-picker button svg:last-child {
   display: none;
@@ -496,8 +512,10 @@ p {
   padding-left: 65px;
 }
 .feature-copy {
-  animation: copy-in 0.25s both;
   padding-block: 40px;
+}
+.feature-copy .action {
+  margin-top: 28px;
 }
 .feature-number {
   display: inline-flex;
@@ -777,7 +795,7 @@ p {
   display: grid;
   grid-template-columns: 1fr 1.25fr;
   gap: 90px;
-  padding-block: 20px 85px;
+  padding-block: 100px 85px;
 }
 .faq-list {
   border-top: 1px solid var(--line);
@@ -802,7 +820,10 @@ summary::-webkit-details-marker {
 }
 .faq-list summary svg {
   color: #a1a4ac;
-  transition: transform 0.2s;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.faq-list details p {
+  animation: faq-open 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .faq-list details[open] summary svg {
   transform: rotate(180deg);
@@ -1077,6 +1098,35 @@ summary::-webkit-details-marker {
     transform: translateY(0);
   }
 }
+@keyframes phone-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes faq-open {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 @media (max-width: 1100px) {
   .wrap {
     width: calc(100% - 64px);
@@ -1273,7 +1323,7 @@ summary::-webkit-details-marker {
     gap: 35px;
   }
   .faq-section {
-    padding-block: 0 50px;
+    padding-block: 70px 50px;
   }
   .start-card {
     grid-template-columns: 1fr;
@@ -1413,7 +1463,7 @@ summary::-webkit-details-marker {
   .feature-picker {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 4px;
   }
   .feature-picker button {
@@ -1667,6 +1717,10 @@ summary::-webkit-details-marker {
   font-size: 11px;
   font-weight: 500;
   color: #68646d;
+  transition:
+    background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .desktop-nav a > svg {
   stroke-width: 1.6;
@@ -1769,6 +1823,7 @@ summary::-webkit-details-marker {
   color: var(--ink);
   background: white;
   box-shadow: 0 30px 100px #16131b30;
+  animation: dialog-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .start-dialog::backdrop {
   background: #17131d55;
@@ -1799,16 +1854,35 @@ summary::-webkit-details-marker {
   padding: 19px 16px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  transition: border-color .2s, background .2s;
+  transition: border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1), background 0.4s cubic-bezier(0.22, 1, 0.36, 1), transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .start-dialog-choice { background: white; text-align: left; }
-.start-dialog-choice:hover { border-color: #d7aab4; background: #fcf6f7; }
+.start-dialog-choice:hover { border-color: #d7aab4; background: #fcf6f7; transform: translateY(-2px); }
 .start-dialog-choice:disabled { width: 100%; cursor: default; }
 .start-dialog-choice:disabled:hover { border-color: var(--line); background: white; }
 .choice-icon { display: flex; padding: 12px; color: var(--wine); background: var(--pink); border-radius: 11px; }
 .start-dialog-choice strong { display: block; font-size: 14px; font-weight: 550; }
 .start-dialog-choice small { display: block; margin-top: 5px; font-size: 11px; color: var(--muted); }
 .start-dialog-choice > svg { margin-left: auto; color: #9b8890; }
+.difference-card,
+.workflow-item,
+.contact-form input:not([type="radio"]),
+.contact-form textarea {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.workflow-item:hover {
+  transform: translateY(-3px);
+  border-color: #5a4a53;
+}
+.contact-form input:not([type="radio"]):focus,
+.contact-form textarea:focus {
+  border-color: #d7aab4;
+  outline: none;
+  box-shadow: 0 0 0 4px #9e243414;
+}
 @media (max-width: 500px) {
   .start-dialog-panel { padding: 38px 20px 22px; }
   .start-dialog h2 { font-size: 29px; }
