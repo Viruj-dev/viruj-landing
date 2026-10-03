@@ -7,7 +7,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src/components/LandingPage.tsx src/app/page.tsx src/app/layout.tsx src/app/privacy/page.tsx src/app/privacy-policy/page.tsx src/app/terms/page.tsx src/app/api/waitlist/route.ts src/app/api/contact/route.ts src/data/destinations.ts src/lib/contact-draft.ts",
+    "lint": "eslint src/components/LandingPage.tsx src/app/page.tsx src/app/layout.tsx src/app/privacy/page.tsx src/app/terms/page.tsx src/app/api/waitlist/route.ts src/app/api/contact/route.ts src/data/destinations.ts src/lib/contact-draft.ts",
     "test": "node tests/contact-draft.test.mjs"
   },
   "dependencies": {

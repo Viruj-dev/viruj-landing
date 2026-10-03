@@ -108,8 +108,7 @@ export default function TermsOfUsePage() {
       </section>
 
       <div className="legal-footer-links">
-        <Link href="/privacy-policy">App Privacy Policy</Link> ·{" "}
-        <Link href="/privacy">Website Privacy Notice</Link> ·{" "}
+        <Link href="/privacy">Privacy Policy</Link> ·{" "}
         <Link href="/">Home</Link>
       </div>
     </main>

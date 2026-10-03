@@ -195,7 +195,7 @@ function Phone({
 function Brand() {
   return (
     <Link href="/" className="brand" aria-label="Viruj Health home">
-      <Image src="/brand/logo.png" alt="Viruj Logo" width={34} height={34} />
+      <Image src="/brand/logo.png" alt="Viruj Health Logo" width={34} height={34} />
       <span>
         viruj<span className="brand-dot">.</span>
         <span className="brand-health"> health</span>
@@ -397,7 +397,7 @@ export default function LandingPage() {
               aria-controls="mobile-menu"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {menuOpen ? <X /> : <Menu />}
+              {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -448,7 +448,7 @@ export default function LandingPage() {
             aria-label="Close dialog"
             onClick={() => startDialog.current?.close()}
           >
-            <X size={20} />
+            <X size={20} aria-hidden="true" />
           </button>
 
           {dialogView === "select" && (
@@ -463,7 +463,7 @@ export default function LandingPage() {
                     className="start-dialog-choice"
                   >
                     <span className="choice-icon">
-                      <Smartphone size={24} />
+                      <Smartphone size={24} aria-hidden="true" />
                     </span>
                     <span>
                       <strong>I’m a patient / user</strong>
@@ -478,7 +478,7 @@ export default function LandingPage() {
                     onClick={() => setDialogView("waitlist")}
                   >
                     <span className="choice-icon">
-                      <Smartphone size={24} />
+                      <Smartphone size={24} aria-hidden="true" />
                     </span>
                     <span>
                       <strong>I’m a patient / user</strong>
@@ -489,7 +489,7 @@ export default function LandingPage() {
                 )}
                 <a href={destinations.provider} className="start-dialog-choice">
                   <span className="choice-icon">
-                    <Hospital size={24} />
+                    <Hospital size={24} aria-hidden="true" />
                   </span>
                   <span>
                     <strong>I’m a healthcare provider</strong>
@@ -580,7 +580,7 @@ export default function LandingPage() {
           {dialogView === "waitlist-success" && (
             <div className="waitlist-success-panel">
               <div className="success-badge-icon">
-                <Check size={28} />
+                <Check size={28} aria-hidden="true" />
               </div>
               <p className="eyebrow">YOU&apos;RE ON THE LIST!</p>
               <h2>Thank you for joining.</h2>
@@ -676,7 +676,11 @@ export default function LandingPage() {
                 transition={{ duration: 1.1, delay: item.delay, ease: easeOut }}
               >
                 <span>{item.label}</span>
-                <Phone screen={item.screen} alt={item.alt} priority />
+                <Phone
+                  screen={item.screen}
+                  alt={item.alt}
+                  priority={item.className === "hero-screen-main"}
+                />
               </motion.div>
             ))}
           </div>
@@ -797,7 +801,7 @@ export default function LandingPage() {
           <div className="about-grid">
             <Reveal className="about-card" delay={0.06}>
               <div className="about-card-icon">
-                <Users size={24} />
+                <Users size={24} aria-hidden="true" />
               </div>
               <h3>Who runs Viruj</h3>
               <p>
@@ -825,25 +829,25 @@ export default function LandingPage() {
 
               <ul className="about-list">
                 <li>
-                  <Check size={16} /> Privacy-first healthcare architecture
+                  <Check size={16} aria-hidden="true" /> Privacy-first healthcare architecture
                 </li>
                 <li>
-                  <Check size={16} /> Clinically-grounded doctor workflows
+                  <Check size={16} aria-hidden="true" /> Clinically-grounded doctor workflows
                 </li>
                 <li>
-                  <Check size={16} /> Built around DPDP Act (2023) privacy
+                  <Check size={16} aria-hidden="true" /> Built around DPDP Act (2023) privacy
                   principles
                 </li>
               </ul>
-              <Link href="/privacy-policy" className="about-policy-link">
-                Read our App Privacy Policy &amp; Data Protections →
+              <Link href="/privacy" className="about-policy-link">
+                Read our Privacy Policy &amp; Data Protections →
               </Link>
             </Reveal>
 
             <Reveal className="about-card" delay={0.12}>
               <div>
                 <div className="about-card-icon">
-                  <MapPin size={24} />
+                  <MapPin size={24} aria-hidden="true" />
                 </div>
                 <h3>Where we operate</h3>
                 <p>
@@ -885,7 +889,7 @@ export default function LandingPage() {
               {/* Visually separated box for Nationwide Access */}
               <div className="nationwide-callout-card">
                 <div className="nationwide-card-header">
-                  <Sparkles size={16} className="text-wine" />
+                  <Sparkles size={16} className="text-wine" aria-hidden="true" />
                   <strong>Nationwide Digital Access</strong>
                 </div>
                 <p>
@@ -975,15 +979,15 @@ export default function LandingPage() {
               </p>
               <ul className="check-list">
                 <li>
-                  <Check size={18} />
+                  <Check size={18} aria-hidden="true" />
                   Requests land in one queue
                 </li>
                 <li>
-                  <Check size={18} />
+                  <Check size={18} aria-hidden="true" />
                   Approve, reschedule, or decline in a tap
                 </li>
                 <li>
-                  <Check size={18} />
+                  <Check size={18} aria-hidden="true" />
                   Staff see only what their role allows
                 </li>
               </ul>
@@ -1021,7 +1025,6 @@ export default function LandingPage() {
                       width={1093}
                       height={930}
                       className="erp-window-image"
-                      priority
                     />
                   </div>
                 </div>
@@ -1077,11 +1080,11 @@ export default function LandingPage() {
               Tell us what you need.
             </p>
             <a href={`mailto:${destinations.email}`} className="contact-link">
-              <Mail size={18} />
+              <Mail size={18} aria-hidden="true" />
               {destinations.email}
             </a>
             <a href={`tel:${destinations.phone}`} className="text-link">
-              +91 79829 58828 <ArrowUpRight size={15} />
+              +91 79829 58828 <ArrowUpRight size={15} aria-hidden="true" />
             </a>
           </Reveal>
           <Reveal delay={0.1}>
@@ -1148,7 +1151,7 @@ export default function LandingPage() {
 
               {contactStatus === "success" ? (
                 <div className="form-success-alert" role="status">
-                  <Check size={20} />
+                  <Check size={20} aria-hidden="true" />
                   <div>
                     <strong>Message sent successfully!</strong>
                     <p>
@@ -1209,9 +1212,8 @@ export default function LandingPage() {
             </div>
             <div>
               <strong>Trust &amp; Legal</strong>
-              <Link href="/privacy-policy">App Privacy Policy</Link>
+              <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms of Use</Link>
-              <Link href="/privacy">Website Privacy</Link>
               <a href="#faq">Questions</a>
             </div>
           </nav>
