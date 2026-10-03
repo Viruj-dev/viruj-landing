@@ -1,252 +1,40 @@
-<div align="center">
+# Viruj landing page
 
-# Viruj
+A plain-language site for the patient app and provider workspace. Built with Next.js, React, the existing fonts, and Lucide icons. The active page does not use the old animated sections or preloader.
 
-### Intelligent Healthcare Platform
+## Run
 
-AI-powered healthcare ecosystem connecting patients, doctors, diagnostics, and continuous care into one seamless experience.
-
-![Next.js](https://img.shields.io/badge/Next.js-15-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-4.0-38BDF8)
-![GSAP](https://img.shields.io/badge/GSAP-Animation-88CE02)
-![Framer Motion](https://img.shields.io/badge/Framer--Motion-Animation-FF0080)
-
-</div>
-
----
-
-## Overview
-
-Viruj is an AI-first healthcare platform designed to simplify the complete healthcare journey—from symptom analysis to continuous post-treatment care.
-
-Instead of treating healthcare as isolated appointments, Viruj creates a connected ecosystem where patients, doctors, diagnostics, medical records, and AI work together in one intelligent platform.
-
----
-
-## Vision
-
-Healthcare today is fragmented.
-
-Patients switch between hospitals, labs, prescriptions, reports, and appointments without a unified experience.
-
-Viruj aims to become the intelligent operating system for healthcare by connecting every touchpoint into a single AI-powered platform.
-
----
-
-## Features
-
-### AI Health Assistant
-
-- Intelligent symptom analysis
-- Context-aware recommendations
-- Personalized healthcare guidance
-
-### Doctor Discovery
-
-- Smart doctor matching
-- Specialty-based recommendations
-- Verified healthcare professionals
-
-### Diagnostics
-
-- Connected laboratory reports
-- Health trend visualization
-- Unified diagnostics dashboard
-
-### Medical Records
-
-- Centralized health history
-- Secure report management
-- Timeline-based patient records
-
-### Continuous Care
-
-- Medication reminders
-- Follow-up recommendations
-- Recovery tracking
-- AI-generated health insights
-
----
-
-# Landing Page Highlights
-
-- Premium modern UI
-- GSAP powered animations
-- Interactive healthcare ecosystem visualization
-- Scroll-driven storytelling
-- Responsive mobile-first design
-- Glassmorphism components
-- Ambient animated backgrounds
-
----
-
-# Tech Stack
-
-## Frontend
-
-- Next.js 15
-- React 19
-- TypeScript
-- Tailwind CSS
-- GSAP
-- Framer Motion
-
-## Design
-
-- Lucide Icons
-- Responsive Layouts
-- Glassmorphism
-- Custom Design System
-
-## Planned Backend
-
-- Node.js
-- Express
-- MongoDB
-- JWT Authentication
-
----
-
-# Project Structure
-
-```text
-src/
-│
-├── app/
-│
-├── components/
-│   ├── ui/
-│   ├── layout/
-│   └── sections/
-│
-├── hooks/
-│
-├── lib/
-│
-├── styles/
-│
-└── utils/
-```
-
----
-
-# Current Progress
-
-- [x] Landing Page Architecture
-- [x] Hero Section
-- [x] Healthcare Ecosystem Visualization
-- [x] Scroll-driven Care Journey
-- [ ] AI Assistant
-- [ ] Doctor Marketplace
-- [ ] Diagnostics Dashboard
-- [ ] Medical Records
-- [ ] Authentication
-- [ ] Backend APIs
-- [ ] AI Integration
-
----
-
-# Performance Goals
-
-- Lighthouse 95+
-- Fully Responsive
-- Accessible UI
-- Smooth 60 FPS Animations
-- Reduced Motion Support
-
----
-
-# Design Philosophy
-
-Viruj follows a minimal, premium design language inspired by products like:
-
-- Apple
-- Linear
-- Stripe
-- Vercel
-- Raycast
-
-The focus is on subtle motion, generous spacing, meaningful interactions, and storytelling through UI.
-
----
-
-# Getting Started
-
-Clone the repository
-
-```bash
-git clone https://github.com/yourusername/viruj.git
-```
-
-Install dependencies
-
-```bash
+```sh
 npm install
-```
-
-Run the development server
-
-```bash
 npm run dev
 ```
 
-Build for production
+## Check
 
-```bash
+```sh
+npm test
+npm run lint
+npx tsc --noEmit
 npm run build
 ```
 
----
+Node 24 runs the small contact-draft test without a TypeScript test runner.
 
-# Roadmap
+## Edit
 
-### Phase 1
+- `src/components/LandingPage.tsx`: content, mobile navigation, app feature tabs, FAQ, and contact form.
+- `src/app/globals.css`: responsive layout and visual styling.
+- `src/data/destinations.ts`: verified provider portal and support contact links.
+- `src/app/privacy/page.tsx`: notice for this website, separate from product policies.
 
-- Premium Landing Page
-- Responsive Design
-- Scroll Animations
+App access and provider demos open email drafts to `help@virujhealth.com`. There is no fake store download link or automatic form submission. Visitors can review and copy the prepared message before sending it. Update app access destinations when public store links are confirmed.
 
-### Phase 2
+## Mobile screenshots
 
-- Authentication
-- AI Assistant
-- Doctor Discovery
+Set `NEXT_PUBLIC_PLAY_STORE_URL` to the published listing when ready. Until then, the user option in the Get started dialog shows “Play Store link coming soon”; providers can open the ERP.
 
-### Phase 3
+`public/screens/mobile` contains fresh captures of the sibling `Viruj-Mobile-app` at 390 × 844, using **Sample data preview (offline)**. The page labels these as sample data. They contain no real patient information. Re-capture screens from the mobile preview when the app design changes.
 
-- Diagnostics
-- Medical Records
-- Appointment System
+## Scope
 
-### Phase 4
-
-- AI Health Intelligence
-- Personalized Care Engine
-- Patient Dashboard
-
----
-
-# Contributing
-
-Contributions, suggestions, and feedback are always welcome.
-
-If you'd like to improve Viruj, feel free to fork the repository and open a pull request.
-
----
-
-# Author
-
-**Sparsh Dokania**
-
-Frontend Developer • UI Engineer • Storytelling through Design
-
----
-
-<div align="center">
-
-Built with ❤️ to reimagine the future of healthcare.
-
-</div>
-# viruj-landing
-# viruj-landing
+The page describes care discovery, appointment requests and tracking, AI information, community, and organization access. It does not claim automatic medical-record imports, live telemedicine, store availability, adoption numbers, or certifications. Provider workflows depend on organization type and enabled tools; the demo path lets teams check their requirements.

@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 import { Geist } from "next/font/google";
-import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
-  title: "Viruj Health | Integrated Health Platform",
+  title: "Viruj Health | You and your care team, connected",
   description:
-    "Viruj is an AI-powered healthcare ecosystem connecting patients, doctors, diagnostics, and medical records.",
+    "Find care, request a visit, and keep track. Viruj connects a patient app with a workspace for doctors, clinics, hospitals, and labs.",
+  openGraph: {
+    title: "Viruj Health | Less running around. More care.",
+    description:
+      "A patient app and a provider workspace. One connected booking journey.",
+    type: "website",
+  },
   icons: {
     icon: "/brand/logo.png",
     shortcut: "/brand/logo.png",
@@ -22,10 +27,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body className="min-h-screen bg-[var(--surface)] text-[var(--on-surface)] antialiased">
-        {children}
-      </body>
+    <html lang="en" className={geist.variable}>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
