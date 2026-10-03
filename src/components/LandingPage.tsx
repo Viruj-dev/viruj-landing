@@ -15,7 +15,6 @@ import {
   ArrowUpRight,
   CalendarDays,
   Check,
-  CheckCheck,
   ChevronDown,
   ClipboardList,
   Hospital,
@@ -25,7 +24,6 @@ import {
   MapPin,
   Menu,
   Search,
-  ShieldCheck,
   Smartphone,
   Sparkles,
   Users,
@@ -97,6 +95,10 @@ const faqs: Array<[string, string]> = [
   [
     "Which cities are currently supported?",
     "Viruj is currently operational in Noida, Greater Noida, and Ghaziabad, with regional provider expansion in progress across Delhi NCR and beyond.",
+  ],
+  [
+    "Can I view my past medical records in Viruj?",
+    "Yes. You can upload previous prescriptions, lab reports, and doctor notes to your personal My Health timeline. New appointments and diagnostics booked via Viruj automatically sync to your timeline.",
   ],
 ];
 
@@ -619,8 +621,8 @@ export default function LandingPage() {
             {[
               {
                 label: "01 / FIND CARE",
-                screen: "home",
-                alt: "Viruj mobile home screen with departments and care search",
+                screen: "doctors",
+                alt: "Viruj mobile app showing doctors and departments",
                 className: "",
                 delay: 0.2,
               },
@@ -718,6 +720,10 @@ export default function LandingPage() {
                     </span>
                     <h3>{feature.title}</h3>
                     <p>{feature.text}</p>
+                    <div className="feature-perks">
+                      <span>✓ Real-time clinic &amp; doctor availability</span>
+                      <span>✓ Upfront consultation fee transparency</span>
+                    </div>
                     <Action onClick={() => openGetStarted("waitlist")}>
                       Join early access waitlist
                     </Action>
@@ -803,24 +809,54 @@ export default function LandingPage() {
             </Reveal>
 
             <Reveal className="about-card" delay={0.12}>
-              <div className="about-card-icon">
-                <MapPin size={24} />
+              <div>
+                <div className="about-card-icon">
+                  <MapPin size={24} />
+                </div>
+                <h3>Where we operate</h3>
+                <p>
+                  <strong>Current In-Person Care Coverage:</strong>
+                </p>
+                <div className="coverage-tags">
+                  <span className="coverage-tag active">
+                    <span className="status-dot-live" /> Noida
+                  </span>
+                  <span className="coverage-tag active">
+                    <span className="status-dot-live" /> Greater Noida
+                  </span>
+                  <span className="coverage-tag active">
+                    <span className="status-dot-live" /> Ghaziabad
+                  </span>
+                </div>
+                <p className="coverage-subtext">
+                  Direct appointment booking and check-in are live across clinics and hospitals in these cities.
+                </p>
+
+                <div className="expansion-box">
+                  <div className="expansion-header">
+                    <strong>Expanding Next:</strong>
+                    <span>Delhi, Gurugram, Faridabad, Bengaluru, Mumbai &amp; Pune</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => openGetStarted("waitlist")}
+                    className="city-request-btn"
+                  >
+                    Request Viruj in your city →
+                  </button>
+                </div>
               </div>
-              <h3>Where we operate</h3>
-              <p>
-                <strong>Current Active Coverage:</strong> Noida, Greater Noida, and Ghaziabad
-              </p>
-              <div className="coverage-tags">
-                <span className="coverage-tag active">Noida</span>
-                <span className="coverage-tag active">Greater Noida</span>
-                <span className="coverage-tag active">Ghaziabad</span>
+
+              {/* Visually separated box for Nationwide Access */}
+              <div className="nationwide-callout-card">
+                <div className="nationwide-card-header">
+                  <Sparkles size={16} className="text-wine" />
+                  <strong>Nationwide Digital Access</strong>
+                </div>
+                <p>
+                  AI symptom guidance, doctor visit preparation, and your personal uploaded health records timeline are accessible anywhere across India.
+                </p>
               </div>
-              <p className="coverage-subtext">
-                <strong>Expanding Next:</strong> Delhi, Gurugram, Faridabad, Bengaluru, Mumbai, and beyond.
-              </p>
-              <p className="coverage-subtext" style={{ marginTop: 12 }}>
-                <strong>Nationwide Digital Access:</strong> The Viruj patient app, AI health guidance, and your self-uploaded medical records timeline are accessible across India.
-              </p>
             </Reveal>
           </div>
         </section>
@@ -898,64 +934,70 @@ export default function LandingPage() {
               </p>
               <ul className="check-list">
                 <li>
-                  <Check />
-                  Review and approve appointment requests across departments.
+                  <Check size={18} />
+                  Requests land in one queue
                 </li>
                 <li>
-                  <Check />
-                  Manage schedules, diagnostics, and patient visits.
+                  <Check size={18} />
+                  Approve, reschedule, or decline in a tap
                 </li>
                 <li>
-                  <Check />
-                  Give staff access based on their clinical role.
+                  <Check size={18} />
+                  Staff see only what their role allows
                 </li>
               </ul>
               <div className="actions">
                 <Action href="#contact">Ask for a demo</Action>
-                <a className="text-link" href={destinations.provider}>
-                  Open provider portal <ArrowUpRight size={16} />
+                <a
+                  className="action action-provider-outline"
+                  href={destinations.provider}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Open provider portal <ArrowUpRight size={16} aria-hidden="true" />
                 </a>
               </div>
             </Reveal>
-            <Reveal delay={0.12}>
-              <div className="workflow-board">
-                <div className="board-header">
-                  <span className="board-mark">
-                    <Hospital size={21} />
-                  </span>
-                  <div>
-                    <strong>One visit. Both sides connected.</strong>
-                    <span>Patient app ↔ Care team workspace</span>
+
+            <Reveal delay={0.12} className="provider-showcase-container">
+              <div className="provider-showcase-wrapper">
+                <div className="provider-window-frame">
+                  <div className="window-frame-header">
+                    <div className="window-dots">
+                      <span className="window-dot red" />
+                      <span className="window-dot yellow" />
+                      <span className="window-dot green" />
+                    </div>
+                    <span className="window-title">erp.virujhealth.com — Appointment Requests</span>
+                  </div>
+                  <div className="window-content">
+                    <Image
+                      src="/screens/erp-workspace.svg"
+                      alt="Viruj Provider Workspace appointment requests queue"
+                      width={720}
+                      height={456}
+                      className="erp-window-image"
+                    />
                   </div>
                 </div>
-                <div className="workflow-lane">
-                  <span className="lane-label">PATIENT</span>
-                  <div className="workflow-item">
-                    <Smartphone />
-                    <div>
-                      <strong>Request a visit</strong>
-                      <span>Doctor, department, practice, patient details, time</span>
-                    </div>
+
+                {/* Floating card on bottom-left corner */}
+                <div className="floating-request-card">
+                  <div className="floating-card-status">
+                    <span className="floating-status-dot" />
+                    <span>Pending request · Dr. Meera Sethi · 4:30 PM</span>
                   </div>
-                </div>
-                <div className="workflow-connector" aria-hidden="true">
-                  <ArrowRight />
-                </div>
-                <div className="workflow-lane">
-                  <span className="lane-label">CARE TEAM</span>
-                  <div className="workflow-item">
-                    <CalendarDays />
-                    <div>
-                      <strong>Review the request</strong>
-                      <span>Approve, reschedule, or decline</span>
-                    </div>
+                  <div className="floating-card-patient">
+                    <strong>Asha Sharma</strong>
+                    <span>Cardiology · In-Person OPD</span>
                   </div>
-                  <div className="workflow-item">
-                    <CheckCheck />
-                    <div>
-                      <strong>Check in the patient</strong>
-                      <span>Verify arrival for an approved visit</span>
-                    </div>
+                  <div className="floating-card-actions">
+                    <button type="button" className="floating-btn-approve">
+                      Approve
+                    </button>
+                    <button type="button" className="floating-btn-reschedule">
+                      Reschedule
+                    </button>
                   </div>
                 </div>
               </div>
