@@ -3,51 +3,61 @@ import Link from "next/link";
 import { destinations } from "@/data/destinations";
 
 export const metadata: Metadata = {
-  title: "Website privacy | Viruj Health",
+  title: "Website Privacy | Viruj Health",
   description:
-    "How contact drafts and screenshots are handled on the Viruj landing page.",
+    "How information, waitlist submissions, and inquiries are handled on the Viruj Health website.",
 };
 
 export default function PrivacyPage() {
   return (
     <main className="wrap legal-page">
-      <Link href="/">← Back to Viruj</Link>
-      <h1>Website privacy</h1>
-      <p>
-        This notice covers this landing page. Ask the Viruj team for the
-        policies that apply to the patient app or your provider workspace before
-        sharing health information.
+      <div className="legal-back-nav">
+        <Link href="/">← Back to Viruj Health</Link>
+      </div>
+      <h1>Website Privacy Notice</h1>
+      <p className="legal-meta">
+        This notice specifically covers this website (virujhealth.com). For our mobile application and patient services data policy, please see our <Link href="/privacy-policy">App Privacy Policy</Link>.
       </p>
-      <h2>Contact drafts stay in your browser.</h2>
+
+      <h2>1. Inquiries and Waitlist Submissions</h2>
       <p>
-        The contact form prepares an email draft. It does not submit your name,
-        email, or message to a Viruj server. Your email app sends the message
-        only when you choose to send it. The copy button copies the draft to
-        your clipboard.
+        When you submit an inquiry through our contact form or join the early-access waitlist, we collect your name,
+        email address, and the details of your inquiry. This information is used strictly to respond to your request,
+        provide product onboarding assistance, and notify you when service launches in your area.
       </p>
-      <h2>Leave private health details out.</h2>
+
+      <h2>2. Leave Private Medical Records Out</h2>
       <p>
-        Please do not include medical records, reports, or private health
-        details in a landing-page enquiry. Contact us first to ask for the
-        appropriate support channel.
+        Please do not include sensitive medical records, prescription scans, or private health details in a general website inquiry.
+        Direct medical consultations and records management are handled securely within the authenticated Viruj patient mobile app.
       </p>
-      <h2>Screenshots use sample data.</h2>
+
+      <h2>3. Screenshots and Product Previews</h2>
       <p>
-        The mobile screenshots on this page were captured from the app’s
-        sample-data preview. They do not show real patient records.
+        The mobile application screenshots featured on this website are illustrative previews using sample data.
+        They do not contain any real patient records or confidential health data.
       </p>
-      <h2>Other websites have their own policies.</h2>
+
+      <h2>4. External Services &amp; Provider Portals</h2>
       <p>
-        Opening the provider portal takes you to a separate service. Its account
-        and data policies apply there. This landing page does not read your
-        provider account.
+        Links to our provider ERP workspace (erp.virujhealth.com) connect to authenticated enterprise portals governed by
+        respective clinical agreements and organizational access rules.
       </p>
-      <h2>Questions about your data?</h2>
+
+      <h2>5. Questions About Your Data</h2>
       <p>
-        Email <a href={`mailto:${destinations.email}`}>{destinations.email}</a>{" "}
-        to ask about data access, retention, or the policies for the product you
-        use.
+        If you have any questions about your data or wish to request data updates/deletion, please contact us at:
+        <br />
+        Email: <a href={`mailto:${destinations.email}`}>{destinations.email}</a>
+        <br />
+        Phone: <a href={`tel:${destinations.phone}`}>{destinations.phone}</a>
       </p>
+
+      <div className="legal-footer-links">
+        <Link href="/privacy-policy">App Privacy Policy</Link> ·{" "}
+        <Link href="/terms">Terms of Use</Link> ·{" "}
+        <Link href="/">Home</Link>
+      </div>
     </main>
   );
 }

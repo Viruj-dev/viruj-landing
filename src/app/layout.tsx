@@ -6,14 +6,34 @@ import { Geist } from "next/font/google";
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 export const metadata: Metadata = {
-  title: "Viruj Health | You and your care team, connected",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://virujhealth.com"
+  ),
+  title: "Viruj Health | Your care. All together.",
   description:
     "Find care, request a visit, and keep track. Viruj connects a patient app with a workspace for doctors, clinics, hospitals, and labs.",
   openGraph: {
-    title: "Viruj Health | Less running around. More care.",
+    title: "Viruj Health | Your care. All together.",
     description:
       "A patient app and a provider workspace. One connected booking journey.",
+    url: "https://virujhealth.com",
+    siteName: "Viruj Health",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Viruj Health | Your care. All together.",
+      },
+    ],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Viruj Health | Your care. All together.",
+    description:
+      "A patient app and a provider workspace. One connected booking journey.",
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/brand/logo.png",

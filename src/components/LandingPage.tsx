@@ -18,17 +18,20 @@ import {
   CheckCheck,
   ChevronDown,
   ClipboardList,
-  Copy,
   Hospital,
+  Info,
+  Loader2,
   Mail,
+  MapPin,
   Menu,
   Search,
+  ShieldCheck,
   Smartphone,
   Sparkles,
+  Users,
   X,
 } from "lucide-react";
 import { destinations } from "@/data/destinations";
-import { contactDraft } from "@/lib/contact-draft";
 
 type Feature = {
   name: string;
@@ -44,9 +47,9 @@ const features: Feature[] = [
     name: "Find care",
     icon: Search,
     title: "Find the right place to start.",
-    text: "Browse doctors, hospitals, clinics, and labs. See specialty, practice, and fee before you book.",
+    text: "Browse doctors, hospitals, clinics, and labs. See department, practice, and fee before you book.",
     image: "doctors",
-    alt: "Viruj mobile app showing nearby doctors",
+    alt: "Viruj mobile app showing nearby doctors and departments",
   },
   {
     name: "Book a visit",
@@ -77,11 +80,11 @@ const features: Feature[] = [
 const faqs: Array<[string, string]> = [
   [
     "What is Viruj?",
-    "Viruj connects a patient app with a workspace for care teams. Patients find care and request visits. Providers manage those requests and their daily work.",
+    "Viruj connects a patient app with a workspace for care teams. Patients find care and request visits across departments and clinics. Providers manage those requests and their daily work seamlessly.",
   ],
   [
     "How do I get the app?",
-    "Request app access below. Our team will share the current access options, and we’ll add store links when they are available.",
+    "Join our early access waitlist below with your name and email. We'll notify you as soon as the app is ready for your device and available in your city.",
   ],
   [
     "Is my appointment confirmed as soon as I book?",
@@ -89,7 +92,11 @@ const faqs: Array<[string, string]> = [
   ],
   [
     "Can AI replace my doctor?",
-    "No. Viruj AI offers general health information. It can be wrong and does not diagnose, prescribe, or replace a doctor. For urgent care, contact local emergency services.",
+    "No. Viruj AI offers general health information and visit preparation. It does not diagnose, prescribe, or replace a doctor. For urgent care, contact local emergency services.",
+  ],
+  [
+    "Which cities are currently supported?",
+    "Viruj is currently operational in Noida, Greater Noida, and Ghaziabad, with regional provider expansion in progress across Delhi NCR and beyond.",
   ],
 ];
 
@@ -122,18 +129,33 @@ function Reveal({
 
 function Action({
   href,
+  onClick,
   children,
   secondary = false,
   className = "",
 }: {
-  href: string;
+  href?: string;
+  onClick?: () => void;
   children: ReactNode;
   secondary?: boolean;
   className?: string;
 }) {
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`action ${secondary ? "action-secondary" : "action-primary"} ${className}`}
+      >
+        {children}
+        <ArrowUpRight size={17} aria-hidden="true" />
+      </button>
+    );
+  }
+
   return (
     <a
-      href={href}
+      href={href || "#"}
       className={`action ${secondary ? "action-secondary" : "action-primary"} ${className}`}
     >
       {children}
@@ -171,7 +193,7 @@ function Phone({
 function Brand() {
   return (
     <Link href="/" className="brand" aria-label="Viruj Health home">
-      <Image src="/brand/logo.png" alt="" width={34} height={34} />
+      <Image src="/brand/logo.png" alt="Viruj Logo" width={34} height={34} />
       <span>
         viruj<span className="brand-dot">.</span>
         <span className="brand-health"> health</span>
@@ -184,41 +206,95 @@ export default function LandingPage() {
   const startDialog = useRef<HTMLDialogElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
+
+  // Dialog view state: "select" | "waitlist" | "waitlist-success"
+  const [dialogView, setDialogView] = useState<"select" | "waitlist" | "waitlist-success">("select");
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistError, setWaitlistError] = useState("");
+  const [waitlistEmailSubmitted, setWaitlistEmailSubmitted] = useState("");
+
+  // Contact form submission state
   const [contactKind, setContactKind] = useState("App access");
-  const [draft, setDraft] = useState<{ href: string; text: string } | null>(
-    null,
-  );
-  const [copyStatus, setCopyStatus] = useState("");
+  const [contactStatus, setContactStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [contactError, setContactError] = useState("");
+
   const feature = features[activeFeature];
 
-  /**
-   * Builds a mailto draft from the contact form without sending data to a server.
-   */
-  function prepareEmail(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const values = new FormData(event.currentTarget);
-    const name = String(values.get("name") || "").trim();
-    const email = String(values.get("email") || "").trim();
-    const message = String(values.get("message") || "").trim();
-    setDraft(
-      contactDraft(destinations.email, contactKind, name, email, message),
-    );
-    setCopyStatus("");
+  function openGetStarted(view: "select" | "waitlist" = "select") {
+    setDialogView(view);
+    setWaitlistError("");
+    startDialog.current?.showModal();
   }
 
   /**
-   * Copies the prepared email draft to the clipboard when available.
+   * Submits early access waitlist form asynchronously to API
    */
-  async function copyDraft() {
-    if (!draft) {
-      return;
-    }
+  async function handleWaitlistSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setWaitlistLoading(true);
+    setWaitlistError("");
+
+    const formData = new FormData(event.currentTarget);
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const city = String(formData.get("city") || "Delhi NCR").trim();
 
     try {
-      await navigator.clipboard.writeText(draft.text);
-      setCopyStatus("Copied. Paste it into an email to help@virujhealth.com.");
-    } catch {
-      setCopyStatus("Copy is unavailable. Select and copy the draft below.");
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, city, role: "patient" }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to join waitlist.");
+      }
+
+      setWaitlistEmailSubmitted(email);
+      setDialogView("waitlist-success");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unable to submit. Please try again.";
+      setWaitlistError(message);
+    } finally {
+      setWaitlistLoading(false);
+    }
+  }
+
+  /**
+   * Submits contact form asynchronously to API
+   */
+  async function handleContactSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setContactStatus("submitting");
+    setContactError("");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const message = String(formData.get("message") || "").trim();
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, interest: contactKind, message }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send message.");
+      }
+
+      setContactStatus("success");
+      form.reset();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send message. Please try again.";
+      setContactError(message);
+      setContactStatus("error");
     }
   }
 
@@ -274,6 +350,10 @@ export default function LandingPage() {
               <Hospital size={15} aria-hidden="true" />
               For care teams
             </a>
+            <a href="#about">
+              <Info size={15} aria-hidden="true" />
+              About &amp; Coverage
+            </a>
             <a href="#how-it-works">
               <CalendarDays size={15} aria-hidden="true" />
               How it works
@@ -290,7 +370,7 @@ export default function LandingPage() {
               aria-haspopup="dialog"
               onClick={() => {
                 setMenuOpen(false);
-                startDialog.current?.showModal();
+                openGetStarted("select");
               }}
             >
               Get started <ArrowUpRight size={17} aria-hidden="true" />
@@ -321,6 +401,7 @@ export default function LandingPage() {
               {[
                 ["For you", "#patients"],
                 ["For care teams", "#organizations"],
+                ["About & Coverage", "#about"],
                 ["How it works", "#how-it-works"],
                 ["Questions", "#faq"],
                 ["Provider login", destinations.provider],
@@ -335,6 +416,7 @@ export default function LandingPage() {
         </AnimatePresence>
       </header>
 
+      {/* Interactive Get Started / Waitlist Dialog */}
       <dialog
         ref={startDialog}
         className="start-dialog"
@@ -349,52 +431,161 @@ export default function LandingPage() {
           <button
             type="button"
             className="dialog-close"
-            aria-label="Close get started"
+            aria-label="Close dialog"
             onClick={() => startDialog.current?.close()}
           >
             <X size={20} />
           </button>
-          <p className="eyebrow">GET STARTED WITH VIRUJ</p>
-          <h2 id="start-dialog-title">Which one are you?</h2>
-          <p>Choose where you’d like to go.</p>
-          <div className="start-dialog-choices">
-            {destinations.playStore ? (
-              <a href={destinations.playStore} className="start-dialog-choice">
-                <span className="choice-icon">
-                  <Smartphone size={24} />
-                </span>
-                <span>
-                  <strong>I’m a user</strong>
-                  <small>Get the app on Google Play</small>
-                </span>
-                <ArrowUpRight size={20} aria-hidden="true" />
-              </a>
-            ) : (
-              <button type="button" className="start-dialog-choice" disabled>
-                <span className="choice-icon">
-                  <Smartphone size={24} />
-                </span>
-                <span>
-                  <strong>I’m a user</strong>
-                  <small>Play Store link coming soon</small>
-                </span>
+
+          {dialogView === "select" && (
+            <>
+              <p className="eyebrow">GET STARTED WITH VIRUJ</p>
+              <h2 id="start-dialog-title">Which one are you?</h2>
+              <p>Choose where you’d like to go.</p>
+              <div className="start-dialog-choices">
+                {destinations.playStore ? (
+                  <a href={destinations.playStore} className="start-dialog-choice">
+                    <span className="choice-icon">
+                      <Smartphone size={24} />
+                    </span>
+                    <span>
+                      <strong>I’m a patient / user</strong>
+                      <small>Get the app on Google Play</small>
+                    </span>
+                    <ArrowUpRight size={20} aria-hidden="true" />
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    className="start-dialog-choice"
+                    onClick={() => setDialogView("waitlist")}
+                  >
+                    <span className="choice-icon">
+                      <Smartphone size={24} />
+                    </span>
+                    <span>
+                      <strong>I’m a patient / user</strong>
+                      <small>Join early access waitlist</small>
+                    </span>
+                    <ArrowRight size={20} aria-hidden="true" />
+                  </button>
+                )}
+                <a href={destinations.provider} className="start-dialog-choice">
+                  <span className="choice-icon">
+                    <Hospital size={24} />
+                  </span>
+                  <span>
+                    <strong>I’m a healthcare provider</strong>
+                    <small>Open the provider workspace</small>
+                  </span>
+                  <ArrowUpRight size={20} aria-hidden="true" />
+                </a>
+              </div>
+            </>
+          )}
+
+          {dialogView === "waitlist" && (
+            <div className="waitlist-flow">
+              <button
+                type="button"
+                className="waitlist-back-btn"
+                onClick={() => setDialogView("select")}
+              >
+                ← Back to options
               </button>
-            )}
-            <a href={destinations.provider} className="start-dialog-choice">
-              <span className="choice-icon">
-                <Hospital size={24} />
-              </span>
-              <span>
-                <strong>I’m a healthcare provider</strong>
-                <small>Open the provider workspace</small>
-              </span>
-              <ArrowUpRight size={20} aria-hidden="true" />
-            </a>
-          </div>
+              <p className="eyebrow">EARLY ACCESS WAITLIST</p>
+              <h2 id="start-dialog-title">Join the Patient App Waitlist</h2>
+              <p className="waitlist-desc">
+                Be the first to access Viruj in your city. We&apos;ll notify you as soon as early access opens.
+              </p>
+
+              <form onSubmit={handleWaitlistSubmit} className="waitlist-form">
+                <label>
+                  Full Name
+                  <input
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="e.g. Priya Sharma"
+                    maxLength={80}
+                  />
+                </label>
+
+                <label>
+                  Email Address
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="you@example.com"
+                    maxLength={100}
+                  />
+                </label>
+
+                <label>
+                  Your City / Area
+                  <input
+                    name="city"
+                    type="text"
+                    placeholder="e.g. Noida, Greater Noida, Ghaziabad"
+                    defaultValue="Noida"
+                    maxLength={60}
+                  />
+                </label>
+
+                {waitlistError && (
+                  <p className="form-error-alert" role="alert">
+                    {waitlistError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={waitlistLoading}
+                  className="action action-primary waitlist-submit-btn"
+                >
+                  {waitlistLoading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={17} />
+                      Joining waitlist...
+                    </>
+                  ) : (
+                    <>
+                      Get Early Access <ArrowRight size={17} />
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {dialogView === "waitlist-success" && (
+            <div className="waitlist-success-panel">
+              <div className="success-badge-icon">
+                <Check size={28} />
+              </div>
+              <p className="eyebrow">YOU&apos;RE ON THE LIST!</p>
+              <h2>Thank you for joining.</h2>
+              <p>
+                We&apos;ve reserved your early access spot. An invitation will be sent to{" "}
+                <strong>{waitlistEmailSubmitted}</strong> as soon as rollouts begin.
+              </p>
+              <div className="actions" style={{ marginTop: 24, justifyContent: "center" }}>
+                <button
+                  type="button"
+                  className="action action-primary"
+                  onClick={() => startDialog.current?.close()}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </dialog>
 
       <main id="main">
+        {/* HERO SECTION */}
         <section className="hero wrap" aria-labelledby="hero-title">
           <motion.div
             className="hero-copy"
@@ -416,9 +607,11 @@ export default function LandingPage() {
               <br /> One app for you. One workspace for your care team.
             </p>
             <div className="actions">
-              <Action href="#patients">Explore the app</Action>
+              <Action onClick={() => openGetStarted("waitlist")}>
+                Join early access waitlist
+              </Action>
               <Action href="#organizations" secondary>
-                For organizations
+                For care teams
               </Action>
             </div>
           </motion.div>
@@ -427,7 +620,7 @@ export default function LandingPage() {
               {
                 label: "01 / FIND CARE",
                 screen: "home",
-                alt: "Viruj mobile home screen with specialties and care search",
+                alt: "Viruj mobile home screen with departments and care search",
                 className: "",
                 delay: 0.2,
               },
@@ -460,6 +653,7 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* PATIENT SECTION */}
         <section
           className="patient-section"
           id="patients"
@@ -468,7 +662,7 @@ export default function LandingPage() {
           <div className="wrap section">
             <Reveal className="section-heading heading-row">
               <div>
-                <p className="eyebrow">FOR YOU & YOUR FAMILY</p>
+                <p className="eyebrow">FOR YOU &amp; YOUR FAMILY</p>
                 <h2 id="patient-title">
                   Your next step,
                   <br />
@@ -476,9 +670,8 @@ export default function LandingPage() {
                 </h2>
               </div>
               <p>
-                A familiar app for finding care,
-                <br className="desktop-break" /> following visits, and asking
-                questions.
+                A familiar app for finding care across departments,
+                <br className="desktop-break" /> following visits, and asking questions.
               </p>
             </Reveal>
             <Reveal className="patient-showcase" delay={0.08}>
@@ -525,8 +718,8 @@ export default function LandingPage() {
                     </span>
                     <h3>{feature.title}</h3>
                     <p>{feature.text}</p>
-                    <Action href={destinations.appAccess}>
-                      Request app access
+                    <Action onClick={() => openGetStarted("waitlist")}>
+                      Join early access waitlist
                     </Action>
                   </motion.div>
                 </AnimatePresence>
@@ -548,6 +741,91 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ABOUT & COVERAGE SECTION */}
+        <section
+          className="section wrap about-section"
+          id="about"
+          aria-labelledby="about-title"
+        >
+          <Reveal className="section-heading">
+            <p className="eyebrow">TRANSPARENCY &amp; COVERAGE</p>
+            <h2 id="about-title">
+              Who runs Viruj,
+              <br />
+              <em>and where we operate.</em>
+            </h2>
+            <p>
+              Healthcare should be clear from day one. Here is who is building Viruj and which cities we actively cover.
+            </p>
+          </Reveal>
+
+          <div className="about-grid">
+            <Reveal className="about-card" delay={0.06}>
+              <div className="about-card-icon">
+                <Users size={24} />
+              </div>
+              <h3>Who runs Viruj</h3>
+              <p>
+                Viruj Health is built by our founding and engineering team to eliminate fragmented patient portals, disjointed appointment inboxes, and scattered medical paperwork.
+              </p>
+
+              <div className="founders-list">
+                <div className="founder-item">
+                  <div className="founder-avatar">VP</div>
+                  <div className="founder-info">
+                    <strong>Vasu Pandey</strong>
+                    <span>Founder</span>
+                  </div>
+                </div>
+                <div className="founder-item">
+                  <div className="founder-avatar">AN</div>
+                  <div className="founder-info">
+                    <strong>Abhishek Negi</strong>
+                    <span>Chief Technology Officer (CTO)</span>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="about-list">
+                <li>
+                  <Check size={16} /> Privacy-first healthcare architecture
+                </li>
+                <li>
+                  <Check size={16} /> Clinically-grounded doctor workflows
+                </li>
+                <li>
+                  <Check size={16} /> Built around DPDP Act (2023) privacy principles
+                </li>
+              </ul>
+              <Link href="/privacy-policy" className="about-policy-link">
+                Read our App Privacy Policy &amp; Data Protections →
+              </Link>
+            </Reveal>
+
+            <Reveal className="about-card" delay={0.12}>
+              <div className="about-card-icon">
+                <MapPin size={24} />
+              </div>
+              <h3>Where we operate</h3>
+              <p>
+                <strong>Current Active Coverage:</strong> Noida, Greater Noida, and Ghaziabad
+              </p>
+              <div className="coverage-tags">
+                <span className="coverage-tag active">Noida</span>
+                <span className="coverage-tag active">Greater Noida</span>
+                <span className="coverage-tag active">Ghaziabad</span>
+              </div>
+              <p className="coverage-subtext">
+                <strong>Expanding Next:</strong> Delhi, Gurugram, Faridabad, Bengaluru, Mumbai, and beyond.
+              </p>
+              <p className="coverage-subtext" style={{ marginTop: 12 }}>
+                <strong>Nationwide Digital Access:</strong> The Viruj patient app, AI health guidance, and your self-uploaded medical records timeline are accessible across India.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS SECTION */}
         <section
           className="section wrap how-section"
           id="how-it-works"
@@ -561,40 +839,46 @@ export default function LandingPage() {
               <em>to showing up.</em>
             </h2>
           </Reveal>
-          <ol className="steps">
-            {[
-              [
-                "Find your doctor",
-                "Choose a doctor and the practice you want to visit.",
-              ],
-              [
-                "Request a time",
-                "Add your patient details and send your appointment request.",
-              ],
-              [
-                "Check the update",
-                "Your care team reviews it. My Health shows the current status.",
-              ],
-              [
-                "Arrive for your visit",
-                "After approval, follow your practice’s check-in instructions.",
-              ],
-            ].map(([title, text], index) => (
-              <motion.li
-                key={title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.8, delay: index * 0.08, ease: easeOut }}
-              >
-                <span className="step-number">0{index + 1}</span>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </motion.li>
-            ))}
-          </ol>
+          <div className="steps-container">
+            <ol className="steps">
+              {[
+                [
+                  "Find your doctor",
+                  "Choose a doctor, department, and the clinic or hospital practice you want to visit.",
+                ],
+                [
+                  "Request a time",
+                  "Add your patient details and send your appointment request.",
+                ],
+                [
+                  "Check the update",
+                  "Your care team reviews it. My Health shows the current status.",
+                ],
+                [
+                  "Arrive for your visit",
+                  "After approval, follow your practice’s check-in instructions.",
+                ],
+              ].map(([title, text], index) => (
+                <motion.li
+                  key={title}
+                  className="step-item"
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{ duration: 0.8, delay: index * 0.08, ease: easeOut }}
+                >
+                  <div className="step-header">
+                    <span className="step-number">0{index + 1}</span>
+                  </div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </motion.li>
+              ))}
+            </ol>
+          </div>
         </section>
 
+        {/* ORGANIZATIONS SECTION */}
         <section
           className="organization-section"
           id="organizations"
@@ -602,7 +886,7 @@ export default function LandingPage() {
         >
           <div className="wrap section org-grid">
             <Reveal className="org-copy">
-              <p className="eyebrow">FOR DOCTORS & ORGANIZATIONS</p>
+              <p className="eyebrow">FOR DOCTORS &amp; CARE TEAMS</p>
               <h2 id="org-title">
                 Less chasing.
                 <br />
@@ -610,24 +894,24 @@ export default function LandingPage() {
               </h2>
               <p>
                 Give your team one workspace for appointment requests, patient
-                visits, and everyday tasks.
+                visits, and everyday clinical tasks.
               </p>
               <ul className="check-list">
                 <li>
                   <Check />
-                  Review and approve appointment requests.
+                  Review and approve appointment requests across departments.
                 </li>
                 <li>
                   <Check />
-                  Manage schedules and patient visits.
+                  Manage schedules, diagnostics, and patient visits.
                 </li>
                 <li>
                   <Check />
-                  Give staff access based on their role.
+                  Give staff access based on their clinical role.
                 </li>
               </ul>
               <div className="actions">
-                <Action href={destinations.demo}>Ask for a demo</Action>
+                <Action href="#contact">Ask for a demo</Action>
                 <a className="text-link" href={destinations.provider}>
                   Open provider portal <ArrowUpRight size={16} />
                 </a>
@@ -650,7 +934,7 @@ export default function LandingPage() {
                     <Smartphone />
                     <div>
                       <strong>Request a visit</strong>
-                      <span>Doctor, practice, patient details, time</span>
+                      <span>Doctor, department, practice, patient details, time</span>
                     </div>
                   </div>
                 </div>
@@ -679,6 +963,7 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* FAQ SECTION */}
         <section
           className="faq-section wrap"
           id="faq"
@@ -705,6 +990,7 @@ export default function LandingPage() {
           </Reveal>
         </section>
 
+        {/* CONTACT SECTION WITH REAL ASYNC FORM SUBMISSION */}
         <section
           className="wrap contact-section"
           id="contact"
@@ -718,7 +1004,7 @@ export default function LandingPage() {
               <em>work for you.</em>
             </h2>
             <p>
-              App access, a team demo, or a question.
+              Early app access, a provider team demo, or questions about coverage.
               <br />
               Tell us what you need.
             </p>
@@ -731,7 +1017,7 @@ export default function LandingPage() {
             </a>
           </Reveal>
           <Reveal delay={0.1}>
-            <form onSubmit={prepareEmail} className="contact-form">
+            <form onSubmit={handleContactSubmit} className="contact-form">
               <fieldset>
                 <legend>I’m interested in</legend>
                 <div className="contact-choices">
@@ -742,10 +1028,7 @@ export default function LandingPage() {
                         name="interest"
                         value={kind}
                         checked={contactKind === kind}
-                        onChange={() => {
-                          setContactKind(kind);
-                          setDraft(null);
-                        }}
+                        onChange={() => setContactKind(kind)}
                       />
                       <span>{kind}</span>
                     </label>
@@ -761,7 +1044,6 @@ export default function LandingPage() {
                     placeholder="Full name"
                     required
                     maxLength={100}
-                    onChange={() => setDraft(null)}
                   />
                 </label>
                 <label>
@@ -773,7 +1055,6 @@ export default function LandingPage() {
                     placeholder="you@example.com"
                     required
                     maxLength={254}
-                    onChange={() => setDraft(null)}
                   />
                 </label>
               </div>
@@ -785,50 +1066,56 @@ export default function LandingPage() {
                   placeholder="Tell us a little about what you need."
                   required
                   maxLength={1500}
-                  onChange={() => setDraft(null)}
                 />
               </label>
               <p className="form-note">
                 Please leave out medical records and private health details.
               </p>
-              <button type="submit" className="action action-primary">
-                Prepare email <ArrowRight size={17} />
-              </button>
-              {draft && (
-                <div className="email-draft" aria-live="polite">
-                  <strong>Your draft is ready.</strong>
-                  <div className="actions">
-                    <Action href={draft.href}>Open email draft</Action>
-                    <button
-                      type="button"
-                      onClick={() => void copyDraft()}
-                      className="copy-button"
-                    >
-                      <Copy size={16} />
-                      Copy message
-                    </button>
-                  </div>
-                  <details>
-                    <summary>
-                      View message <ChevronDown size={16} />
-                    </summary>
-                    <pre>{draft.text}</pre>
-                  </details>
-                  <p role="status">{copyStatus}</p>
+
+              {contactError && (
+                <div className="form-error-alert" role="alert">
+                  <p>{contactError}</p>
                 </div>
+              )}
+
+              {contactStatus === "success" ? (
+                <div className="form-success-alert" role="status">
+                  <Check size={20} />
+                  <div>
+                    <strong>Message sent successfully!</strong>
+                    <p>Thank you for reaching out. Our team will get back to you shortly.</p>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={contactStatus === "submitting"}
+                  className="action action-primary"
+                >
+                  {contactStatus === "submitting" ? (
+                    <>
+                      <Loader2 className="animate-spin" size={17} />
+                      Sending message...
+                    </>
+                  ) : (
+                    <>
+                      Send message <ArrowRight size={17} />
+                    </>
+                  )}
+                </button>
               )}
             </form>
           </Reveal>
         </section>
       </main>
 
+      {/* FOOTER */}
       <footer className="site-footer">
         <div className="wrap footer-main">
           <div>
             <Brand />
             <p>
-              You and your care team.
-              <br />A little more connected.
+              Connected healthcare for patients, clinics, and doctors.
             </p>
           </div>
           <nav aria-label="Footer navigation">
@@ -836,24 +1123,32 @@ export default function LandingPage() {
               <strong>Explore</strong>
               <a href="#patients">Patient app</a>
               <a href="#organizations">For care teams</a>
+              <a href="#about">About &amp; Coverage</a>
               <a href="#how-it-works">How it works</a>
             </div>
             <div>
-              <strong>Get connected</strong>
-              <a href={destinations.appAccess}>Request app access</a>
-              <a href={destinations.demo}>Ask for a demo</a>
+              <strong>Get started</strong>
+              <button
+                type="button"
+                className="footer-link-btn"
+                onClick={() => openGetStarted("waitlist")}
+              >
+                Join waitlist
+              </button>
+              <a href="#contact">Ask for a demo</a>
+              <a href={destinations.provider}>Provider workspace</a>
             </div>
             <div>
-              <strong>Help</strong>
-              <a href="#faq">Common questions</a>
-              <a href="#contact">Contact us</a>
-              <Link href="/privacy">Website privacy</Link>
+              <strong>Trust &amp; Legal</strong>
+              <Link href="/privacy-policy">App Privacy Policy</Link>
+              <Link href="/terms">Terms of Use</Link>
+              <Link href="/privacy">Website Privacy</Link>
+              <a href="#faq">Questions</a>
             </div>
           </nav>
         </div>
         <div className="wrap footer-bottom">
-          <span>© {new Date().getFullYear()} Viruj Health</span>
-          <span>Built for people. Built for care.</span>
+          <span>© {new Date().getFullYear()} Viruj Health · Built for care in Noida, Greater Noida &amp; Ghaziabad.</span>
         </div>
       </footer>
     </>
