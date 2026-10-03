@@ -367,15 +367,17 @@ export default function LandingPage() {
           </nav>
           <div className="header-actions">
             <button
-              className="action action-primary"
+              className="action action-primary header-get-started-btn"
               type="button"
+              aria-label="Get started"
               aria-haspopup="dialog"
               onClick={() => {
                 setMenuOpen(false);
                 openGetStarted("select");
               }}
             >
-              Get started <ArrowUpRight size={17} aria-hidden="true" />
+              <span className="header-btn-text">Get started</span>
+              <ArrowUpRight size={17} aria-hidden="true" />
             </button>
             <button
               className="menu-button"
@@ -600,7 +602,7 @@ export default function LandingPage() {
               ONE APP. ONE CONNECTED CARE JOURNEY.
             </p>
             <h1 id="hero-title">
-              Your care.
+              <span className="hero-title-lead">Your care.</span>
               <br />
               <em>All together.</em>
             </h1>
@@ -608,7 +610,7 @@ export default function LandingPage() {
               Find a doctor. Request a visit. Stay in the loop.
               <br /> One app for you. One workspace for your care team.
             </p>
-            <div className="actions">
+            <div className="actions hero-actions">
               <Action onClick={() => openGetStarted("waitlist")}>
                 Join early access waitlist
               </Action>
