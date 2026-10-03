@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import { Geist } from "next/font/google";
+import { Urbanist } from "next/font/google";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+const fontUrbanist = Urbanist({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -48,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geist.variable}>
+    <html lang="en" className={fontUrbanist.variable}>
       <body suppressHydrationWarning>
         <SmoothScroll>{children}</SmoothScroll>
       </body>
