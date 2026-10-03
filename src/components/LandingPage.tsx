@@ -210,14 +210,18 @@ export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0);
 
   // Dialog view state: "select" | "waitlist" | "waitlist-success"
-  const [dialogView, setDialogView] = useState<"select" | "waitlist" | "waitlist-success">("select");
+  const [dialogView, setDialogView] = useState<
+    "select" | "waitlist" | "waitlist-success"
+  >("select");
   const [waitlistLoading, setWaitlistLoading] = useState(false);
   const [waitlistError, setWaitlistError] = useState("");
   const [waitlistEmailSubmitted, setWaitlistEmailSubmitted] = useState("");
 
   // Contact form submission state
   const [contactKind, setContactKind] = useState("App access");
-  const [contactStatus, setContactStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [contactStatus, setContactStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
   const [contactError, setContactError] = useState("");
 
   const feature = features[activeFeature];
@@ -257,7 +261,10 @@ export default function LandingPage() {
       setWaitlistEmailSubmitted(email);
       setDialogView("waitlist-success");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unable to submit. Please try again.";
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Unable to submit. Please try again.";
       setWaitlistError(message);
     } finally {
       setWaitlistLoading(false);
@@ -294,7 +301,10 @@ export default function LandingPage() {
       setContactStatus("success");
       form.reset();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to send message. Please try again.";
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Failed to send message. Please try again.";
       setContactError(message);
       setContactStatus("error");
     }
@@ -448,7 +458,10 @@ export default function LandingPage() {
               <p>Choose where you’d like to go.</p>
               <div className="start-dialog-choices">
                 {destinations.playStore ? (
-                  <a href={destinations.playStore} className="start-dialog-choice">
+                  <a
+                    href={destinations.playStore}
+                    className="start-dialog-choice"
+                  >
                     <span className="choice-icon">
                       <Smartphone size={24} />
                     </span>
@@ -500,7 +513,8 @@ export default function LandingPage() {
               <p className="eyebrow">EARLY ACCESS WAITLIST</p>
               <h2 id="start-dialog-title">Join the Patient App Waitlist</h2>
               <p className="waitlist-desc">
-                Be the first to access Viruj in your city. We&apos;ll notify you as soon as early access opens.
+                Be the first to access Viruj in your city. We&apos;ll notify you
+                as soon as early access opens.
               </p>
 
               <form onSubmit={handleWaitlistSubmit} className="waitlist-form">
@@ -571,10 +585,14 @@ export default function LandingPage() {
               <p className="eyebrow">YOU&apos;RE ON THE LIST!</p>
               <h2>Thank you for joining.</h2>
               <p>
-                We&apos;ve reserved your early access spot. An invitation will be sent to{" "}
-                <strong>{waitlistEmailSubmitted}</strong> as soon as rollouts begin.
+                We&apos;ve reserved your early access spot. An invitation will
+                be sent to <strong>{waitlistEmailSubmitted}</strong> as soon as
+                rollouts begin.
               </p>
-              <div className="actions" style={{ marginTop: 24, justifyContent: "center" }}>
+              <div
+                className="actions"
+                style={{ marginTop: 24, justifyContent: "center" }}
+              >
                 <button
                   type="button"
                   className="action action-primary"
@@ -611,10 +629,17 @@ export default function LandingPage() {
               <br /> One app for you. One workspace for your care team.
             </p>
             <div className="actions hero-actions">
-              <Action onClick={() => openGetStarted("waitlist")} className="hero-waitlist-btn">
+              <Action
+                onClick={() => openGetStarted("waitlist")}
+                className="hero-waitlist-btn"
+              >
                 Join early access waitlist
               </Action>
-              <Action href="#organizations" secondary className="hero-care-teams-btn">
+              <Action
+                href="#organizations"
+                secondary
+                className="hero-care-teams-btn"
+              >
                 For care teams
               </Action>
             </div>
@@ -675,7 +700,8 @@ export default function LandingPage() {
               </div>
               <p>
                 A familiar app for finding care across departments,
-                <br className="desktop-break" /> following visits, and asking questions.
+                <br className="desktop-break" /> following visits, and asking
+                questions.
               </p>
             </Reveal>
             <Reveal className="patient-showcase" delay={0.08}>
@@ -763,7 +789,8 @@ export default function LandingPage() {
               <em>and where we operate.</em>
             </h2>
             <p>
-              Healthcare should be clear from day one. Here is who is building Viruj and which cities we actively cover.
+              Healthcare should be clear from day one. Here is who is building
+              Viruj and which cities we actively cover.
             </p>
           </Reveal>
 
@@ -774,7 +801,9 @@ export default function LandingPage() {
               </div>
               <h3>Who runs Viruj</h3>
               <p>
-                Viruj Health is built by our founding and engineering team to eliminate fragmented patient portals, disjointed appointment inboxes, and scattered medical paperwork.
+                Viruj Health is built by our founding and engineering team to
+                eliminate fragmented patient portals, disjointed appointment
+                inboxes, and scattered medical paperwork.
               </p>
 
               <div className="founders-list">
@@ -802,7 +831,8 @@ export default function LandingPage() {
                   <Check size={16} /> Clinically-grounded doctor workflows
                 </li>
                 <li>
-                  <Check size={16} /> Built around DPDP Act (2023) privacy principles
+                  <Check size={16} /> Built around DPDP Act (2023) privacy
+                  principles
                 </li>
               </ul>
               <Link href="/privacy-policy" className="about-policy-link">
@@ -831,13 +861,16 @@ export default function LandingPage() {
                   </span>
                 </div>
                 <p className="coverage-subtext">
-                  Direct appointment booking and check-in are live across clinics and hospitals in these cities.
+                  Direct appointment booking and check-in are live across
+                  clinics and hospitals in these cities.
                 </p>
 
                 <div className="expansion-box">
                   <div className="expansion-header">
                     <strong>Expanding Next:</strong>
-                    <span>Delhi, Gurugram, Faridabad, Bengaluru, Mumbai &amp; Pune</span>
+                    <span>
+                      Delhi, Gurugram, Faridabad, Bengaluru, Mumbai &amp; Pune
+                    </span>
                   </div>
                   <button
                     type="button"
@@ -856,7 +889,9 @@ export default function LandingPage() {
                   <strong>Nationwide Digital Access</strong>
                 </div>
                 <p>
-                  AI symptom guidance, doctor visit preparation, and your personal uploaded health records timeline are accessible anywhere across India.
+                  AI symptom guidance, doctor visit preparation, and your
+                  personal uploaded health records timeline are accessible
+                  anywhere across India.
                 </p>
               </div>
             </Reveal>
@@ -903,7 +938,11 @@ export default function LandingPage() {
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.4 }}
-                  transition={{ duration: 0.8, delay: index * 0.08, ease: easeOut }}
+                  transition={{
+                    duration: 0.8,
+                    delay: index * 0.08,
+                    ease: easeOut,
+                  }}
                 >
                   <div className="step-header">
                     <span className="step-number">0{index + 1}</span>
@@ -956,7 +995,8 @@ export default function LandingPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Open provider portal <ArrowUpRight size={16} aria-hidden="true" />
+                  Open provider portal{" "}
+                  <ArrowUpRight size={16} aria-hidden="true" />
                 </a>
               </div>
             </Reveal>
@@ -970,36 +1010,19 @@ export default function LandingPage() {
                       <span className="window-dot yellow" />
                       <span className="window-dot green" />
                     </div>
-                    <span className="window-title">erp.virujhealth.com — Appointment Requests</span>
+                    <span className="window-title">
+                      erp.virujhealth.com — Hospital Workspace
+                    </span>
                   </div>
                   <div className="window-content">
                     <Image
-                      src="/screens/erp-workspace.svg"
-                      alt="Viruj Provider Workspace appointment requests queue"
-                      width={720}
-                      height={456}
+                      src="/screens/erp-production.jpg"
+                      alt="Viruj Provider ERP Workspace Command Center"
+                      width={1093}
+                      height={930}
                       className="erp-window-image"
+                      priority
                     />
-                  </div>
-                </div>
-
-                {/* Floating card on bottom-left corner */}
-                <div className="floating-request-card">
-                  <div className="floating-card-status">
-                    <span className="floating-status-dot" />
-                    <span>Pending request · Dr. Meera Sethi · 4:30 PM</span>
-                  </div>
-                  <div className="floating-card-patient">
-                    <strong>Asha Sharma</strong>
-                    <span>Cardiology · In-Person OPD</span>
-                  </div>
-                  <div className="floating-card-actions">
-                    <button type="button" className="floating-btn-approve">
-                      Approve
-                    </button>
-                    <button type="button" className="floating-btn-reschedule">
-                      Reschedule
-                    </button>
                   </div>
                 </div>
               </div>
@@ -1048,7 +1071,8 @@ export default function LandingPage() {
               <em>work for you.</em>
             </h2>
             <p>
-              Early app access, a provider team demo, or questions about coverage.
+              Early app access, a provider team demo, or questions about
+              coverage.
               <br />
               Tell us what you need.
             </p>
@@ -1127,7 +1151,10 @@ export default function LandingPage() {
                   <Check size={20} />
                   <div>
                     <strong>Message sent successfully!</strong>
-                    <p>Thank you for reaching out. Our team will get back to you shortly.</p>
+                    <p>
+                      Thank you for reaching out. Our team will get back to you
+                      shortly.
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -1158,9 +1185,7 @@ export default function LandingPage() {
         <div className="wrap footer-main">
           <div>
             <Brand />
-            <p>
-              Connected healthcare for patients, clinics, and doctors.
-            </p>
+            <p>Connected healthcare for patients, clinics, and doctors.</p>
           </div>
           <nav aria-label="Footer navigation">
             <div>
@@ -1192,7 +1217,10 @@ export default function LandingPage() {
           </nav>
         </div>
         <div className="wrap footer-bottom">
-          <span>© {new Date().getFullYear()} Viruj Health · Built for care in Noida, Greater Noida &amp; Ghaziabad.</span>
+          <span>
+            © {new Date().getFullYear()} Viruj Health · Built for care in Noida,
+            Greater Noida &amp; Ghaziabad.
+          </span>
         </div>
       </footer>
     </>
