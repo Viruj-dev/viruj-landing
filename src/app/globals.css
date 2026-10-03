@@ -1559,7 +1559,23 @@ summary::-webkit-details-marker {
     display: none;
   }
   .hero-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+    width: 100%;
+  }
+  .hero-care-teams-btn {
     display: none;
+  }
+  .hero-waitlist-btn {
+    width: auto;
+    min-height: 48px;
+    padding-inline: 22px;
+    font-size: 13.5px;
+    font-weight: 550;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 12px;
   }
   .hero-note {
     font-size: 11px;
@@ -1568,8 +1584,8 @@ summary::-webkit-details-marker {
     height: auto;
     min-height: 0;
     gap: 0;
-    padding: 6px 0 0;
-    margin-top: 18px;
+    padding: 8px 0 0;
+    margin-top: 24px;
     display: flex;
     align-items: flex-end;
     justify-content: center;

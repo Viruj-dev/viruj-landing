@@ -611,10 +611,10 @@ export default function LandingPage() {
               <br /> One app for you. One workspace for your care team.
             </p>
             <div className="actions hero-actions">
-              <Action onClick={() => openGetStarted("waitlist")}>
+              <Action onClick={() => openGetStarted("waitlist")} className="hero-waitlist-btn">
                 Join early access waitlist
               </Action>
-              <Action href="#organizations" secondary>
+              <Action href="#organizations" secondary className="hero-care-teams-btn">
                 For care teams
               </Action>
             </div>
